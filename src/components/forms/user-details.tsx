@@ -47,6 +47,7 @@ import Loading from "../global/loading";
 import { Separator } from "../ui/separator";
 import { Switch } from "../ui/switch";
 import mongoose from "mongoose";
+import { changeUserPermissions } from "@/lib/actions/user/change-user-permissions.action";
 
 type Props = {
   id: string | null;
@@ -138,8 +139,14 @@ const UserDetails = ({ id, type, userData, subAccounts }: Props) => {
   ) => {
     if (!data.user?.email) return
     setLoadingPermissions(true)
+
+    const permissionId = permissionsId
+  ? new mongoose.Types.ObjectId(permissionsId)
+  : new mongoose.Types.ObjectId(); 
+
+
     const response = await changeUserPermissions(
-      permissionsId ? permissionsId : new mongoose.Types.ObjectId,
+      permissionId.toString(),
       data.user.email,
       subAccountId,
       val
