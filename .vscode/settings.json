@@ -1,0 +1,5 @@
+{
+    "editor.overtypeCursorStyle": "line",
+    "terminal.integrated.cursorStyle": "block",
+    "terminal.integrated.cursorStyleInactive": "outline"
+}
