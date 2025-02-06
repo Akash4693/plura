@@ -38,6 +38,8 @@ const layout = async ({children, params}: Props) => {
     const notifications = await getNotificationAndUser(agencyId.toString())
     if (notifications) allNotifications = notifications
      
+   // console.log("allNotifications", allNotifications)
+   // console.log("notifications", notifications)
  // const sidebar = await Sidebar({ id: params.agencyId, type: "agency" });
 
   return (
@@ -50,7 +52,7 @@ const layout = async ({children, params}: Props) => {
       <div className="md:pl-[300px]">
         <InfoBar 
           notifications={allNotifications}
-          role={allNotifications[0]?.User.role}
+          role={allNotifications[0]?.user?.role}
         />
         <div className="relative">
           <BlurPage>{children}</BlurPage>

@@ -10,6 +10,7 @@ export const updateAgencyDetails = async (
 ): Promise<AgencyType | null> => {
   
     await connectDB();
+    console.log("Buffer in updateAgencyDetails")
     try {
     if (!agencyId) {
       throw new Error("Agency ID is required.");

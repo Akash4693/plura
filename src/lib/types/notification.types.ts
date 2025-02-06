@@ -1,5 +1,6 @@
 import mongoose, { Document, Types } from "mongoose";
 import { PopulatedUser, User } from "./user.types";
+import { Role } from "@/constants/enums/role.enum";
 
 // Interface for the Notification document
 export interface Notification extends Document {
@@ -20,10 +21,12 @@ export interface SaveActivityLogsNotificationParams {
 }
 
 export interface NotificationWithUser extends Omit<Notification, "userId"> {
-  userId: {
+  user: {
     _id: Types.ObjectId;
     name: string;
+    avatarUrl: string;
     email: string;
+    role: Role;
   } | null;
 }
 

@@ -1,6 +1,7 @@
 import AgencyDetails from "@/components/forms/agency-details";
 import UserDetails from "@/components/forms/user-details";
 import { Agency as AgencyType } from "@/lib/types/agency.types";
+import { User as UserType } from "@/lib/types/user.types";
 import Agency from "@/models/agency.model";
 import User from "@/models/user.model";
 import { currentUser } from "@clerk/nextjs";
@@ -16,7 +17,7 @@ const SettingsPage = async ({ params }: Props) => {
 
   const userDetails = await User.findOne({
     email: authUser.emailAddresses[0]?.emailAddress,
-  });
+  }).lean() as Partial<UserType>;
 
   if (!userDetails) return null;
 

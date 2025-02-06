@@ -85,6 +85,7 @@ import "@/models/ticket.model";
 import "@/models/notification.model";
 import "@/models/agency.model";
 import "@/models/sub-account.model";
+import { userDeletionMiddleware } from "./middleware/user.middleware";
 
 
 const userSchema: Schema<User> = new Schema({
@@ -143,6 +144,10 @@ const userSchema: Schema<User> = new Schema({
   toJSON: { virtuals: true },
   toObject: { virtuals: true },
 });
+
+
+userSchema.pre("deleteOne", { document: true, query: false }, userDeletionMiddleware);
+
 
 // Indexes
 userSchema.index({ agencyId: 1 });

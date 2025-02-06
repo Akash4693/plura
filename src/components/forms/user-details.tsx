@@ -1,4 +1,4 @@
-"use client"
+"use client";
 import { Role } from "@/constants/enums/role.enum";
 import { useToast } from "@/hooks/use-toast";
 import { saveActivityLogsNotification } from "@/lib/actions/notification/save-activity-logs-notification.actions";
@@ -132,103 +132,141 @@ const UserDetails = ({ id, type, userData, subAccounts }: Props) => {
     }
   }, [userData, data]);
 
+  const role = form.watch("role"); // Watch role field
+
+useEffect(() => {
+  if (role === Role.SUBACCOUNT_USER || role === Role.SUBACCOUNT_GUEST) {
+    setRoleState(
+      "You must have subaccounts to grant Subaccount access to team members."
+    );
+  } else {
+    setRoleState("");
+  }
+}, [role]); 
+
   const onChangePermission = async (
     subAccountId: string,
     val: boolean,
     permissionsId: string | undefined
   ) => {
-    if (!data.user?.email) return
-    setLoadingPermissions(true)
+    if (!data.user?.email) return;
+    setLoadingPermissions(true);
 
     const permissionId = permissionsId
-  ? new mongoose.Types.ObjectId(permissionsId)
-  : new mongoose.Types.ObjectId(); 
-
+      ? new mongoose.Types.ObjectId(permissionsId)
+      : new mongoose.Types.ObjectId();
 
     const response = await changeUserPermissions(
       permissionId.toString(),
       data.user.email,
       subAccountId,
       val
-    )
-    if (type === 'agency') {
-        const permission = subAccountPermissions?.Permissions?.find(
-          (p) => p.subAccountId.toString() === subAccountId.toString()
+    );
+    if (type === "agency") {
+      const permission = subAccountPermissions?.Permissions?.find(
+        (p) => p.subAccountId.toString() === subAccountId.toString()
+      );
+
+      if (permission?.SubAccount) {
+        await saveActivityLogsNotification({
+          agencyId: authUserData?.Agency?.id,
+          description: `Gave ${userData?.name} access to | ${permission.SubAccount.name}`,
+          subAccountId: permission.SubAccount.id,
+        });
+      } else {
+        console.error(
+          "Permission or SubAccount not found for subAccountId:",
+          subAccountId
         );
-      
-        if (permission?.SubAccount) {
-          await saveActivityLogsNotification({
-            agencyId: authUserData?.Agency?.id,
-            description: `Gave ${userData?.name} access to | ${permission.SubAccount.name}`,
-            subAccountId: permission.SubAccount.id,
-          });
-        } else {
-          console.error("Permission or SubAccount not found for subAccountId:", subAccountId);
-        }
       }
+    }
 
     if (response) {
       toast({
-        title: 'Success',
-        description: 'The request was successfully completed.',
-      })
+        title: "Success",
+        description: "The request was successfully completed.",
+      });
       if (subAccountPermissions) {
         subAccountPermissions?.Permissions?.find((perm) => {
           if (perm.subAccountId.toString() === subAccountId.toString()) {
-            return { ...perm, access: !perm.access }
+            return { ...perm, access: !perm.access };
           }
-          return perm
-        })
+          return perm;
+        });
       }
     } else {
       toast({
-        variant: 'destructive',
-        title: 'Failed',
-        description: 'Could not update permissions',
-      })
+        variant: "destructive",
+        title: "Failed",
+        description: "Could not update permissions",
+      });
     }
-    router.refresh()
-    setLoadingPermissions(false)
-  }
-
+    router.refresh();
+    setLoadingPermissions(false);
+  };
 
   const onSubmit = async (values: z.infer<typeof userDataSchema>) => {
-    if (!id) return;
+    if (!id) return null;
+  
+    console.log("values:", values);
+  
     if (userData || data?.user) {
-      const updatedUser = await updateUser(values);
-      authUserData?.Agency?.subAccounts
-        ?.filter((subAccount) =>
-          authUserData?.Permissions?.some(
-            (permission) =>
-              permission.subAccountId === subAccount.id && permission.access
-          )
-        )
-        .forEach(async (subAccount) => {
-          await saveActivityLogsNotification({
-            agencyId: undefined,
-            description: `Updated ${userData?.name} information`,
-            subAccountId: subAccount.id,
+      try {
+        // Call the API to update the user
+        const response = await fetch('/api/update-user', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(values), // Pass user data to API
+        });
+  
+        const result = await response.json(); // Parse the JSON response
+  
+        if (response.ok) {
+          // On success, save activity log and update UI
+          authUserData?.Agency?.subAccounts
+            ?.filter((subAccount) =>
+              authUserData?.Permissions?.some(
+                (permission) =>
+                  permission.subAccountId === subAccount.id && permission.access
+              )
+            )
+            .forEach(async (subAccount) => {
+              await saveActivityLogsNotification({
+                agencyId: undefined,
+                description: `Updated ${userData?.name} information`,
+                subAccountId: subAccount.id,
+              });
+            });
+  
+          toast({
+            title: "Success",
+            description: "User Information Updated Successfully",
           });
-        });
-
-      if (updatedUser) {
-        toast({
-          title: "Success",
-          description: "User Information Updated Successfully",
-        });
-        setClose();
-        router.refresh();
-      } else {
+          setClose();
+          router.refresh();
+        } else {
+          // Handle failure with result.message
+          toast({
+            variant: "destructive",
+            title: "Update Failed",
+            description: result.message || "Could not update user information. Please try again.",
+          });
+        }
+      } catch (error) {
+        console.error("Error updating user:", error);
         toast({
           variant: "destructive",
           title: "Update Failed",
-          description: "Could not update user information. Please try again.",
+          description: "An error occurred while updating the user. Please try again.",
         });
       }
     } else {
       console.log("Error: User information submission failed.");
     }
   };
+  
 
   return (
     <Card className="w-full">
@@ -303,20 +341,7 @@ const UserDetails = ({ id, type, userData, subAccounts }: Props) => {
                   <FormLabel>User role</FormLabel>
                   <Select
                     disabled={field.value === Role.AGENCY_OWNER}
-                    onValueChange={(value) => {
-                      if (
-                        value === Role.SUBACCOUNT_USER ||
-                        value === Role.SUBACCOUNT_GUEST
-                      ) {
-                        setRoleState(
-                          "You must have subaccounts to grant Subaccount access to team members."
-                        );
-                      } else {
-                        setRoleState("");
-                      }
-                      field.onChange(value);
-                    }}
-                    defaultValue={field.value}
+                    onValueChange={field.onChange} // ✅ No setState here
                   >
                     <FormControl>
                       <SelectTrigger>
@@ -334,10 +359,10 @@ const UserDetails = ({ id, type, userData, subAccounts }: Props) => {
                         </SelectItem>
                       )}
                       <SelectItem value={Role.SUBACCOUNT_USER}>
-                        Sub account User
+                        Subaccount User
                       </SelectItem>
                       <SelectItem value={Role.SUBACCOUNT_GUEST}>
-                        Sub account Guest
+                        Subaccount Guest
                       </SelectItem>
                     </SelectContent>
                   </Select>
@@ -361,7 +386,9 @@ const UserDetails = ({ id, type, userData, subAccounts }: Props) => {
                   {subAccounts?.map((subAccount) => {
                     const subAccountPermissionsDetails =
                       subAccountPermissions?.Permissions?.find(
-                        (p) => p.subAccountId?.toString() === subAccount._id.toString()
+                        (p) =>
+                          p.subAccountId?.toString() ===
+                          subAccount._id.toString()
                       );
                     return (
                       <div

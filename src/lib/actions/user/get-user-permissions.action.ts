@@ -6,7 +6,7 @@ import User from "@/models/user.model";
 export const getUserPermissions = async (userId: string): Promise<UserWithPermissionsAndSubAccounts | null> => {
   try {
     await connectDB()
-
+    console.log("monogodb connected in getUserPermissions")
     const response = await User.findOne({ _id: userId })
     .populate("permissions")
     .populate("subAccounts")

@@ -79,6 +79,7 @@ import Agency from "@/models/agency.model";
 
 export const verifyAndAcceptInvitation = async (): Promise<string | null> => {
   await connectDB();
+  console.log("MongoDb connected in verifyAndAcceptInvitation")
   const user = await currentUser();
 
   if (!user) {
@@ -134,7 +135,7 @@ export const verifyAndAcceptInvitation = async (): Promise<string | null> => {
       companyEmail: email,
     }).lean();
 
-    console.log("Agency found:", agency);
+   // console.log("Agency found:", agency);
 
     // Convert _id to string and remove any non-serializable fields (like methods)
     return agency?._id ? agency._id.toString() : null;

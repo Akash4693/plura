@@ -11,7 +11,7 @@ export const createTeamUser = async (
 ) => {
   try {
   await connectDB();
-
+    console.log("createTeamUser connected")
   console.log("User role:", user.role);
   if (user.role === Role.AGENCY_OWNER) return null;
 

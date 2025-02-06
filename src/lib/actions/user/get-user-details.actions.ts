@@ -50,6 +50,7 @@ import { logError } from "@/lib/utils/logger";
 export const getAuthUserDetails = async (): Promise<AuthUserWithAgencySidebarOptionsSubAccounts | null> => {
   try {
     await connectDB();
+    console.log("monogodb connected in getAuthuserdetails")
     const user = await currentUser();
 
     if(!user) return null;
@@ -62,6 +63,13 @@ export const getAuthUserDetails = async (): Promise<AuthUserWithAgencySidebarOpt
       model: "Agency",
       populate: [
         { path: "sidebarOption", model: "AgencySidebarOption" },
+        {
+          path: "subAccounts", // Populate subAccounts for agency
+          model: "SubAccount",
+          populate: [
+            { path: "sidebarOption", model: "SubAccountSidebarOption" }
+          ]
+        }
       ],
     })
     .populate("permissions")
@@ -97,3 +105,4 @@ export const getAuthUserDetails = async (): Promise<AuthUserWithAgencySidebarOpt
     return null;
   }
 }; 
+ 

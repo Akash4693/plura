@@ -13,12 +13,12 @@ export const changeUserPermissions = async (
 ): Promise<PermissionType | null> => {
     try {
         await connectDB()
-
+        console.log("monogodb connected in changeUserPermissions")
         const response = await Permission.findOneAndUpdate(
             { _id: permissionId },
             { access: permission },
             { new: true, upsert: true, setDefaultsOnInsert: true }
-        );
+        ).lean();
 
         if (!response) {
             const newPermission = new Permission({
@@ -30,7 +30,9 @@ export const changeUserPermissions = async (
             return newPermission;
         }
 
-        return response
+        const plainResponse = response.toObject();
+
+        return plainResponse
 
     } catch (error) {
         console.log('🔴 Could not change permission', error);

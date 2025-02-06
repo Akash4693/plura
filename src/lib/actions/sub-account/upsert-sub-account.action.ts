@@ -83,6 +83,7 @@ import { getDefaultSubAccountSidebarOptions } from '@/lib/utils/sidebar-options'
 import { Role } from '@/constants/enums/role.enum';
 import Permission from '@/models/permission.model';
 import SubAccountSidebarOption from '@/models/sub-account-sidebar-option.model';
+import Agency from '@/models/agency.model';
 
 export const upsertSubAccount = async (subAccount: Partial<SubAccountType>) => {
   if (!subAccount.companyEmail) return null;
@@ -100,23 +101,18 @@ export const upsertSubAccount = async (subAccount: Partial<SubAccountType>) => {
       throw new Error(`🔴 Error: Could not find agency owner for subAccount with ID: ${subAccount._id}.`);
     }
 
-    console.log('agencyOwner:', agencyOwner); // Add this for debugging
-    console.log('agencyOwner._id:', agencyOwner._id);
-
     // Generate a new _id if not provided
     const subAccountId = subAccount._id || new mongoose.Types.ObjectId();
-    console.log('subAccountId:', subAccountId);
 
     const sidebarOptions = getDefaultSubAccountSidebarOptions(subAccountId.toString()).map(option => ({
       ...option,
       subAccountId, // Ensure subAccountId is added here
     }));
-    console.log("Sub account sidebar options", sidebarOptions);
+ 
 
     const sidebarOptionIds = await SubAccountSidebarOption.insertMany(sidebarOptions)
     .then(options => options.map(option => option._id)); 
 
-    console.log("Sub account sidebar Option IDs:", sidebarOptionIds);
 
     // Check if a Permission document already exists for the agency owner
     let permission = await Permission.findOne({ email: agencyOwner.email }).exec();
@@ -133,7 +129,6 @@ export const upsertSubAccount = async (subAccount: Partial<SubAccountType>) => {
       console.log('New permission created:', permission); // Add this for debugging
     }
 
-    console.log('permission._id:', permission?._id);
 
     const placeholderPipelineId = new mongoose.Types.ObjectId();  // Temporary placeholder
     const pipelineData = [{ _id: placeholderPipelineId, name: 'Lead Cycle' }];
@@ -159,8 +154,12 @@ export const upsertSubAccount = async (subAccount: Partial<SubAccountType>) => {
         new: true,
       }
     ).lean().exec();
+    
 
     if (!response) throw new Error('SubAccount upsert failed.');
+
+    console.log("upsert SubAccount Response:", response)
+
 
     const populatedResponse = await SubAccount.findById(response._id)
       .populate('sidebarOption')  // Populate the 'sidebarOption' field
@@ -168,6 +167,37 @@ export const upsertSubAccount = async (subAccount: Partial<SubAccountType>) => {
 
     if (!populatedResponse) {
       throw new Error('Error populating sidebar options.');
+    }
+
+   
+    const agency = await Agency.findById(subAccount.agencyId);
+    if (agency) {
+      // Update the agency with the new subAccount reference
+      const updatedAgency = await Agency.findByIdAndUpdate(
+        subAccount.agencyId,
+        { $addToSet: { subAccounts: populatedResponse._id } },
+        { new: true }
+      )
+      .populate("subAccounts")  // Populate the subAccounts field
+      .lean()
+      .exec();
+
+      console.log("Updated Agency with populated subAccounts:", updatedAgency);
+
+      // Update the agency owner with the new subAccount reference
+      const updatedUser = await User.findOneAndUpdate(
+        { _id: agencyOwner._id },
+        { $addToSet: { subAccounts: populatedResponse._id } },
+        { new: true }
+      )
+      .populate("subAccounts")
+      .lean()
+      .exec();
+
+      console.log("Updated User with populated subAccounts:", updatedUser);
+      
+    } else {
+      throw new Error(`Agency with ID ${subAccount.agencyId} not found.`);
     }
 
     console.log('SubAccount details with populated sidebar options:', populatedResponse);

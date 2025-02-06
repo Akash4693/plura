@@ -189,7 +189,7 @@ const MenuOptions = ({
                   <CommandGroup heading="Accounts">
                     {!!subAccounts
                       ? subAccounts.map((subaccount) => (
-                          <CommandItem key={subaccount.id}>
+                          <CommandItem key={subaccount.name}>
                             {defaultOpen ? (
                               <Link
                                 href={`/subaccount/${subaccount.id}`}
@@ -291,9 +291,10 @@ const MenuOptions = ({
                     }
                     return (
                       <CommandItem
-                        key={sidebarOptions.id}
+                        key={sidebarOptions.name}
                         className="md:w-[320px] w-full"
                       >
+                        <SheetClose asChild>
                         <Link
                           href={sidebarOptions.link}
                           className="flex items-center gap-2 hover:bg-transparent rounded-md transition-all md:w-full w-[320px]"
@@ -301,6 +302,7 @@ const MenuOptions = ({
                           {val}
                           <span>{sidebarOptions.name}</span>
                         </Link>
+                        </SheetClose>
                       </CommandItem>
                     );
                   })}

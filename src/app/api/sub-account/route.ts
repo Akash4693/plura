@@ -5,7 +5,7 @@ export const POST = async (req: Request) => {
   try {
     const data = await req.json(); // Parse JSON request body
 
-    console.log("Received Body in API Route:", data);
+    console.log("Received Body in sub-account API Route:", data);
     if (!data) {
       return NextResponse.json(
         { message: 'Invalid data. Company email is required.' },
@@ -15,6 +15,8 @@ export const POST = async (req: Request) => {
 
     // Call your upsertSubAccount function
     const result = await upsertSubAccount(data);
+
+    console.log("subahan result",result)
 
     return NextResponse.json(result, { status: 200 });
     

@@ -26,6 +26,7 @@ type Props = {
     subAccountId?: string
 }
 
+
 const InfoBar = ({ 
     notifications, 
     role, 
@@ -34,7 +35,9 @@ const InfoBar = ({
 }: Props) => {
     const [allNotifications, setAllNotifications] = useState<NotificationWithUser[]>(notifications)
     const [showAll, setShowAll] = useState(true)  
-    
+
+        console.log("notifications", notifications)
+
     const handleClick = () => {
         if (!showAll) {
             setAllNotifications(notifications)
@@ -75,7 +78,8 @@ const InfoBar = ({
                             )}
                         </SheetDescription>
                     </SheetHeader>
-                    {allNotifications?.map((notification) => (
+                    {allNotifications?.map((notification) => {
+                        return (
                         <div
                             key={notification.id}
                             className="flex flex-col gap-y-2 mb-2 overflow-x-scroll text-ellipsis"
@@ -83,11 +87,11 @@ const InfoBar = ({
                             <div className="flex gap-2">
                                 <Avatar>
                                     <AvatarImage
-                                        src={notification.User.avatarUrl}
+                                        src={notification.user?.avatarUrl}
                                         alt="Profile Picture"
                                     />
                                     <AvatarFallback className="bg-primary">
-                                        {typeof notification.User.name === "string" ? notification?.User?.name?.toString().slice(0, 2).toUpperCase() : ""}
+                                        {typeof notification.user?.name === "string" ? notification?.User?.name?.toString().slice(0, 2).toUpperCase() : ""}
                                     </AvatarFallback>    
                                 </Avatar>
                                 <div className="flex flex-col">
@@ -108,7 +112,8 @@ const InfoBar = ({
                                 </div>
                             </div>
                         </div>
-                    ))}
+                        )
+                    })}
                     {allNotifications?.length === 0 && (
                         <div className="flex items-center justify-center text-muted-foreground mb-4">
                             no notifications

@@ -1,4 +1,5 @@
 "use server";
+import { connectDB } from "@/lib/db";
 import { SaveActivityLogsNotificationParams } from "@/lib/types/notification.types";
 import Agency from "@/models/agency.model";
 import Notification from "@/models/notification.model";
@@ -13,6 +14,8 @@ export const saveActivityLogsNotification = async ({
   subAccountId,
 }: SaveActivityLogsNotificationParams): Promise<void> => {
   try {
+    await connectDB()
+    console.log("no Buffer in saveActivityLogsNotification")
     const authUser = await currentUser();
     let userData;
 
@@ -62,7 +65,7 @@ export const saveActivityLogsNotification = async ({
     // Create Notification
     const notificationData = {
       notification: `${userData.name} | ${description}`,
-      userId: userData._id,
+      userId: userData._id.toString(),
       agencyId: foundAgencyId ? foundAgencyId.toString() : null,
       ...(subAccountId && { SubAccount: subAccountId }),
     };

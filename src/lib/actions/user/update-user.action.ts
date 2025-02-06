@@ -1,38 +1,45 @@
-"user server"
-import { clerkClient } from "@clerk/nextjs";
+"use server";
+import { clerkClient, currentUser } from "@clerk/nextjs";
 import { Role } from "@/constants/enums/role.enum";
 import { connectDB } from "@/lib/db";
 import { User as UserType } from "@/lib/types/user.types";
 import User from "@/models/user.model";
 
-
 export const updateUser = async (user: Partial<UserType>) => {
-    try {
-        await connectDB()
+  try {
+    await connectDB();
+    console.log("monogodb connected in updateUser")
+    const clerkCurrentUser = await currentUser();
 
-        const response = await User.findOneAndUpdate(
-            { email: user.email },
-            { $set: {...user} },
-            { new: true }
-        ).exec();
-    
-        if (!response) {
-            throw new Error("User not found or update failed")
-        }
-    
-        await clerkClient.users.updateUserMetadata(response._id.toString(), {
-            privateMetadata: {
-                role: user.role || Role.SUBACCOUNT_USER,
-            },
-        });    
+    if (!clerkCurrentUser) {
+        console.error("No authenticated user found in clerk")
+        return;
+    }
+    console.log("monogodb connected in update user");
+    console.log("updateuser users", clerkCurrentUser)
 
-        return response;
-    } catch (error) {
-        console.error("Error updating user:", error);
-    throw new Error("Failed to update user");
+    const response = await User.findOneAndUpdate(
+      { email: user.email },
+      { $set: { ...user } },
+      { new: true }
+    ).lean();
+
+    console.log("UpdateUser response:", response);
+
+    if (!response) {
+      throw new Error("User not found or update failed");
     }
 
-    
 
-    
-}
+    await clerkClient.users.updateUserMetadata(clerkCurrentUser.id, {
+      privateMetadata: {
+        role: user.role || Role.SUBACCOUNT_USER,
+      },
+    });
+
+    return response;
+  } catch (error) {
+    console.error("Error updating user:", error);
+    throw new Error("Failed to update user");
+  }
+};

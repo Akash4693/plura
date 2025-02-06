@@ -25,4 +25,6 @@ export interface Agency extends Document {
   notification?: Types.ObjectId[];
   subscription?: Types.ObjectId;
   addOns?: Types.ObjectId[];
+  createdAt: Date;
+  updatedAt: Date;
 }
