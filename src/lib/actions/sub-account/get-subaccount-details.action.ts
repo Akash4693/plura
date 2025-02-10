@@ -15,6 +15,8 @@ export const getSubaccountDetails = async (subaccountId: string) => {
 
           const subaccountDetails = await SubAccount.findById(subaccountId).lean();
 
+          console.log("subaccount details _id:", subaccountDetails)
+
           if (!subaccountDetails) {
             throw new Error("Subaccount not found");
           }

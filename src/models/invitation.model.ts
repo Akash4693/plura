@@ -7,7 +7,7 @@ import type { Invitation } from "@/lib/types/invitation.types";
   const invitationSchema: Schema<Invitation> = new Schema({
     email: {
       type: String,
-      unique: true,
+     
       required: [true, "Invitation email is required"],
       trim: true,
     },

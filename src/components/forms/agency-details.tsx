@@ -776,8 +776,8 @@ const AgencyDetails = ({ data }: Props) => {
                 Are you sure
               </AlertDialogTitle>
               <AlertDialogDescription>
-                This action cannot be undone. This will permanently delete the
-                Agency account and all related sub accounts.
+              This Agency and all data related to the sub
+              account will be deleted permanently.
               </AlertDialogDescription>
             </AlertDialogHeader>
             <AlertDialogFooter className="flex items-center">

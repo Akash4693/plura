@@ -57,14 +57,10 @@ const SubaccountsList = ({ user, agencyId }: Props) => {
             <CommandGroup heading="Sub Accounts">
               {user?.Agency?.subAccounts?.length ? (
                 user.Agency.subAccounts.map((subaccount: SubAccount) => {
-                  console.log("Sub account list user:", user)
-                  console.log("Sub account list user agency:", user.Agency)
-                  console.log("Sub account list user subAccounts:", user.Agency?.subAccounts)
-                  console.log("Sub account list user subaccount:", subaccount)
-                  console.log("Sub account list user agencyId :", user.agencyId)
+
                   return (
                   <CommandItem
-                    key={subaccount.id}
+                    key={subaccount._id.toString()}
                     className="h-32 !bg-background my-2 text-primary border-1[px] border-border p-4 rounded-lg hover:!bg-background cursor-pointer transition-all"
                   >
                     <Link

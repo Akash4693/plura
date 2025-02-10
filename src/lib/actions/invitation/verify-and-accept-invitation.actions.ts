@@ -76,6 +76,7 @@ import User from "@/models/user.model";
 import mongoose from "mongoose";
 import { connectDB } from "@/lib/db";
 import Agency from "@/models/agency.model";
+import { Role } from "@/constants/enums/role.enum";
 
 export const verifyAndAcceptInvitation = async (): Promise<string | null> => {
   await connectDB();
@@ -86,21 +87,31 @@ export const verifyAndAcceptInvitation = async (): Promise<string | null> => {
     return redirect("/sign-in");
   }
 
-  const email = user?.emailAddresses?.[0]?.emailAddress;
+  
+
+  const email = user?.emailAddresses?.[0]?.emailAddress.toString();
   if (!email) {
     console.error("User email address not found.");
     return null;
   }
 
-  const invitationExists = await User.findOne({
+  console.log("email:", email )
+
+  const invitations = await Invitation.find({ email }).lean();
+console.log("All Invitations for Email:", invitations);
+
+
+  const invitationExists = await Invitation.findOne({
     email,
     status: "PENDING",
   }).lean();
 
   console.log("invitationExists:", invitationExists);
 
-  if (invitationExists?.agencyId) {
-    const userDetails = await createTeamUser(invitationExists.agencyId, {
+ 
+
+  if (invitationExists) {
+    const userDetails = await createTeamUser(invitationExists.agencyId?.toString(), {
       email: invitationExists.email,
       agencyId: invitationExists.agencyId,
       avatarUrl: user.imageUrl,
@@ -108,10 +119,10 @@ export const verifyAndAcceptInvitation = async (): Promise<string | null> => {
       name: `${user.firstName} ${user.lastName}`,
       role: invitationExists.role,
     });
-    console.log("userDetails:", userDetails);
+    console.log("Invitation userDetails:", userDetails);
 
     await saveActivityLogsNotification({
-      agencyId: invitationExists?.agencyId,
+      agencyId: invitationExists?.agencyId.toString(),
       description: `Joined`,
       subAccountId: undefined,
     });
@@ -119,7 +130,7 @@ export const verifyAndAcceptInvitation = async (): Promise<string | null> => {
     if (userDetails) {
       await clerkClient.users.updateUserMetadata(user.id, {
         privateMetadata: {
-          role: userDetails.role || "SUBACCOUNT_USER",
+          role: userDetails.role || Role.SUBACCOUNT_USER,
         },
       });
 
@@ -132,7 +143,7 @@ export const verifyAndAcceptInvitation = async (): Promise<string | null> => {
     }
   } else {
     const agency = await Agency.findOne({
-      companyEmail: email,
+      companyEmail: user.emailAddresses[0].emailAddress,
     }).lean();
 
    // console.log("Agency found:", agency);

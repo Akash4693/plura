@@ -1,58 +1,69 @@
-import { PopulatedUser } from "@/lib/types/user.types";
-import Agency from "@/models/agency.model";
-import User from "@/models/user.model";
-import { currentUser } from "@clerk/nextjs";
-import React from "react";
-import DataTable from "./data-table";
+"use client";
+
+import React, { useEffect, useState } from "react";
 import { Plus } from "lucide-react";
+import DataTable from "./data-table";
+import { columns } from "./columns";
+import SendInvitation from "@/components/forms/send-invitation";
 
 type Props = {
   params: { agencyId: string };
 };
 
-const TeamPage = async ({ params }: Props) => {
-  const authUser = await currentUser()
-  const teamMembers = await User.find({
-    agencyId: params.agencyId,
-  })
-    .populate({
-      path: "agencyId",
-      model: "Agency",
-      populate: { path: "subAccounts" },
-    })
-    .populate({
-      path: "permissions",
-      model: "Permissions",
-      populate: { path: "subAccount" },
-    })
-    .lean()
-    .exec();
+const TeamPage = ({ params }: Props) => {
+  const [teamMembers, setTeamMembers] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
 
-  if (!authUser) return null;
+  useEffect(() => {
+    const fetchTeamMembers = async () => {
+      try {
+        const NEXT_PUBLIC_URL = process.env.NEXT_PUBLIC_URL;
+        if (!NEXT_PUBLIC_URL) {
+          console.warn("NEXT_PUBLIC_URL is not defined");
+          setError("Missing API URL");
+          setLoading(false);
+          return;
+        }
 
-  const agencyDetails = await Agency.findOne({
-    _id: params.agencyId,
-  })
-    .populate("subAccounts")
-    .exec();
+        const response = await fetch(
+          `${NEXT_PUBLIC_URL}/api/users?agencyId=${params.agencyId}`,
+          { cache: "no-store" } // Always fetch fresh data
+        );
 
-  if(!agencyDetails) return null;
+        if (!response.ok) {
+          throw new Error("Failed to fetch team members");
+        }
+
+        const data = await response.json();
+        setTeamMembers(data);
+      } catch (err) {
+        console.error("Error fetching team members:", err);
+        setError("Failed to load team members");
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchTeamMembers();
+  }, [params.agencyId]);
+
+  if (loading) return <p>Loading team members...</p>;
+  if (error) return <p className="text-red-500">{error}</p>;
 
   return (
     <DataTable
       actionButtonText={
         <>
           <Plus size={15} />
-          Add 
+          Add
         </>
       }
-      modalChildren={<></>}
+      modalChildren={<SendInvitation agencyId={params.agencyId} />}
       filterValue="name"
-      columns={column}
+      columns={columns}
       data={teamMembers}
-    >
-
-    </DataTable>
+    />
   );
 };
 

@@ -72,7 +72,11 @@ export const getAuthUserDetails = async (): Promise<AuthUserWithAgencySidebarOpt
         }
       ],
     })
-    .populate("permissions")
+    .populate({
+      path: "permissions",
+      model: "Permission",
+      populate: { path: "subAccountId", model: "SubAccount" }, // Ensure subAccountId is fully populated
+    })
     .populate("tickets")
     .populate("notifications")
     .populate({
@@ -90,11 +94,11 @@ export const getAuthUserDetails = async (): Promise<AuthUserWithAgencySidebarOpt
         return null;
       }
       
-      console.log("User data with populated agency:", userData);
+   //   console.log("User data with populated agency:", userData);
       const plainUserData = JSON.parse(JSON.stringify(userData));
 
-      console.log("User data with permissions:", plainUserData);
-      console.log("Sending data to client:", JSON.stringify(plainUserData, null, 2));
+      //console.log("User data with permissions:", plainUserData);
+      //console.log("Sending data to client:", JSON.stringify(plainUserData, null, 2));
   
       return {
         ...plainUserData,

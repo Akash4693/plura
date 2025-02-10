@@ -11,7 +11,7 @@ type Props = {
 
 const DeleteButton = ({ subaccountId }: Props) => {
   const router = useRouter()
-  
+    console.log("Subaccount id delete button", subaccountId)
     return (
     <div
       onClick={async () => {

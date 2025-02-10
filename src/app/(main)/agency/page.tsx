@@ -17,6 +17,8 @@ const Page = async ({
 
   //get the users details
   const user = await getAuthUserDetails()
+
+  console.log("user await getUserDetails", user)
   
   if (agencyId) {
     console.log("agencyId: " , agencyId)
@@ -39,6 +41,7 @@ const Page = async ({
     }
   }
   const authUser = await currentUser();
+
 
   return (
     <div className="flex justify-center items-center mt-4">

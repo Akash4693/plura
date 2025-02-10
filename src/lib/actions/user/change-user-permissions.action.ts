@@ -13,14 +13,15 @@ export const changeUserPermissions = async (
 ): Promise<PermissionType | null> => {
     try {
         await connectDB()
-        console.log("monogodb connected in changeUserPermissions")
+        console.log("✅ MongoDB connected in changeUserPermissions");
         const response = await Permission.findOneAndUpdate(
             { _id: permissionId },
             { access: permission },
             { new: true, upsert: true, setDefaultsOnInsert: true }
-        ).lean();
+        )
 
         if (!response) {
+            console.log("🔴 No existing permission found. Creating a new one.");
             const newPermission = new Permission({
                 access: permission,
                 email: userEmail,
@@ -30,9 +31,8 @@ export const changeUserPermissions = async (
             return newPermission;
         }
 
-        const plainResponse = response.toObject();
-
-        return plainResponse
+       
+        return response;
 
     } catch (error) {
         console.log('🔴 Could not change permission', error);

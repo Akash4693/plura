@@ -389,7 +389,7 @@ useEffect(() => {
                         (p) =>
                           p.subAccountId?.toString() ===
                           subAccount._id.toString()
-                      );
+                      )
                     return (
                       <div
                         key={subAccount.id}
@@ -406,7 +406,7 @@ useEffect(() => {
                               subAccount.id,
                               permission,
                               subAccountPermissionsDetails?.id
-                            );
+                            )
                           }}
                         />
                       </div>
