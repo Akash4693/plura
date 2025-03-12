@@ -33,6 +33,6 @@ const mediaSchema: Schema<Media> = new Schema({
   
 mediaSchema.index({ subAccountId: 1 });
 
-const Media: Model<Media> = mongoose.model<Media>("Media", mediaSchema);
+const Media: Model<Media> = mongoose.models.Media || mongoose.model<Media>("Media", mediaSchema);
 export default Media;
   

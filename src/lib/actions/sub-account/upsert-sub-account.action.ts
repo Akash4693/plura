@@ -260,6 +260,7 @@ export const upsertSubAccount = async (subAccount: Partial<SubAccountType>) => {
         email: agencyOwner.email,
         user: agencyOwner._id, // Ensure user reference is included
         subAccountId,
+        SubAccounts: SubAccount
       });
 
       console.log('New permission created:', permission);

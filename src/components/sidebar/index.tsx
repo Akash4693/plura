@@ -166,6 +166,7 @@ export const Sidebar: React.FC<Props> = ({ id, type }) => {
     sideBarLogo = subAccount?.subAccountLogo || user.Agency.agencyLogo;
   }
 
+  
   const sidebarOpt =
     type === 'agency'
       ? user.Agency.sidebarOption || []

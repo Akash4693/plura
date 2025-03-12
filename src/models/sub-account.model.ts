@@ -1,6 +1,8 @@
 import mongoose, { Schema, Model } from "mongoose";
 import type { SubAccount } from "@/lib/types/sub-account.types";
 import"@/lib/types/sub-account-sidebar-option.types"
+import "@/models/pipeline.model";
+import "@/models/media.model"
 
 // SubAccount schema
 const subAccountSchema: Schema<SubAccount> = new Schema(

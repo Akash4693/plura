@@ -13,7 +13,7 @@ export interface User extends Document {
   email: string;
   role: Role;
   agencyId?: Types.ObjectId;
-  permissions?: mongoose.Types.ObjectId[];
+  permissions?: Permission[];
   tickets?: mongoose.Types.ObjectId[];
   notifications?: mongoose.Types.ObjectId[];
   subAccounts?: SubAccount[];

@@ -24,16 +24,23 @@ const SubaccountLayout = async ({ children, params }: Props) => {
   }
 
   let notifications: any = [];
+  
+  console.log("params.subAccountId:", params.subaccountId)
 
   if (!user.privateMetadata.role) {
     return <Unauthorized />;
   } else {
     const allPermissions = await getAuthUserDetails();
-    const hasPermission = allPermissions?.Permissions?.find(
-      (permissions) =>
-        permissions.access &&
-        permissions.subAccountId.toString() === params.subaccountId
-    );
+  //  console.log("allPermissions", allPermissions?.Permissions)
+    
+    const hasPermission = allPermissions?.permissions?.find(
+      (permission) =>
+        permission.access &&
+        permission.subAccountId?._id?.toString() === params.subaccountId
+    ); 
+
+    //console.log("hasPermission", hasPermission)
+
     if (!hasPermission) {
       return <Unauthorized />;
     }

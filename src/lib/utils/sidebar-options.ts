@@ -38,28 +38,18 @@ export const getDefaultAgencySidebarOptions = (agencyId: string): SidebarOptionW
     link: `/agency/${agencyId}/team`,
   },
 ];
-
+//67aa529bd37748faed2a27ea
 // Sub-account sidebar options
 export const getDefaultSubAccountSidebarOptions = (subAccountId: string): SidebarOptionWithoutMongooseProps[] => [
-  {
-    name: 'Launchpad',
-    icon: Icon.clipboardIcon,
-    link: `/subaccount/${subAccountId}/launchpad`,
-  },
-  {
-    name: 'Settings',
-    icon: Icon.settings,
-    link: `/subaccount/${subAccountId}/settings`,
-  },
-  {
-    name: 'Funnels',
-    icon: Icon.pipelines,
-    link: `/subaccount/${subAccountId}/funnels`,
-  },
   {
     name: 'Media',
     icon: Icon.database,
     link: `/subaccount/${subAccountId}/media`,
+  },
+  {
+    name: 'Launchpad',
+    icon: Icon.clipboardIcon,
+    link: `/subaccount/${subAccountId}/launchpad`,
   },
   {
     name: 'Automations',
@@ -72,13 +62,23 @@ export const getDefaultSubAccountSidebarOptions = (subAccountId: string): Sideba
     link: `/subaccount/${subAccountId}/pipelines`,
   },
   {
-    name: 'Contacts',
-    icon: Icon.person,
-    link: `/subaccount/${subAccountId}/contacts`,
-  },
-  {
     name: 'Dashboard',
     icon: Icon.category,
     link: `/subaccount/${subAccountId}`,
+  },
+  {
+    name: 'Settings',
+    icon: Icon.settings,
+    link: `/subaccount/${subAccountId}/settings`,
+  },
+  {
+    name: 'Funnels',
+    icon: Icon.pipelines,
+    link: `/subaccount/${subAccountId}/funnels`,
+  },
+  {
+    name: 'Contacts',
+    icon: Icon.person,
+    link: `/subaccount/${subAccountId}/contacts`,
   },
 ];

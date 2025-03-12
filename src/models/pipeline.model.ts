@@ -27,5 +27,5 @@ const pipelineSchema: Schema<Pipeline> = new Schema({
   
 pipelineSchema.index({ subAccountId: 1 });
 
-const Pipeline: Model<Pipeline> = mongoose.model<Pipeline>("Pipeline", pipelineSchema);
+const Pipeline: Model<Pipeline> = mongoose.models.Pipeline || mongoose.model<Pipeline>("Pipeline", pipelineSchema);
 export default Pipeline;

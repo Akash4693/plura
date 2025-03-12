@@ -14,6 +14,5 @@ export const getUser = async (id: string): Promise<UserType | null> => {
     } catch (error) {
         console.error("Error fetching user:", error);
         return null;
-    }
-    
+    }    
 };

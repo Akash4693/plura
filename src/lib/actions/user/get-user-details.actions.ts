@@ -72,7 +72,7 @@ export const getAuthUserDetails = async (): Promise<AuthUserWithAgencySidebarOpt
         }
       ],
     })
-    .populate({
+       .populate({
       path: "permissions",
       model: "Permission",
       populate: { path: "subAccountId", model: "SubAccount" }, // Ensure subAccountId is fully populated
@@ -85,7 +85,7 @@ export const getAuthUserDetails = async (): Promise<AuthUserWithAgencySidebarOpt
       populate: [
         { path: "sidebarOption", model: "SubAccountSidebarOption" },
       ],
-    })
+    })   
       .lean()
       .exec();
 
@@ -94,7 +94,10 @@ export const getAuthUserDetails = async (): Promise<AuthUserWithAgencySidebarOpt
         return null;
       }
       
-   //   console.log("User data with populated agency:", userData);
+      
+      
+
+    //console.log("User data with populated agency:", userData.agencyId);
       const plainUserData = JSON.parse(JSON.stringify(userData));
 
       //console.log("User data with permissions:", plainUserData);
@@ -102,7 +105,8 @@ export const getAuthUserDetails = async (): Promise<AuthUserWithAgencySidebarOpt
   
       return {
         ...plainUserData,
-        Agency: plainUserData.agencyId
+        Agency: plainUserData.agencyId,
+        Permissions: plainUserData.permissions
       } // Cast to PopulatedUser
   } catch (error) {
     logError("Error fetching authenticated user details", error);

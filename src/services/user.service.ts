@@ -33,7 +33,7 @@ export const getUsersWithAgencySubAccountPermissionsSidebarOptions = async (
         path: "permissions",
         model: "Permission",
         populate: {
-          path: "subAccount",
+          path: "subAccountId",
           model: "SubAccount",
         },
       })

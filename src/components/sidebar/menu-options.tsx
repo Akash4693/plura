@@ -67,7 +67,11 @@ const MenuOptions = ({
     [defaultOpen]
   );
 
-  console.log("SidebarOpt: ", )
+  subAccounts = details?.subAccounts
+  console.log("subAccounts: ",subAccounts )
+  
+  
+
 
 
   useEffect(() => {
@@ -96,7 +100,7 @@ const MenuOptions = ({
             "hidden md:inline-block z-0 w-[300px]": defaultOpen,
             "inline-block md:hidden z-[100] w-full": !defaultOpen,
           }
-        )}
+        )} 
       >
         <div>
           <AspectRatio ratio={16 / 5}>
@@ -187,12 +191,12 @@ const MenuOptions = ({
                       </CommandGroup>
                     )}
                   <CommandGroup heading="Accounts">
-                    {!!subAccounts
+                    {!!details?.subAccounts
                       ? subAccounts.map((subaccount) => (
                           <CommandItem key={subaccount.name}>
                             {defaultOpen ? (
                               <Link
-                                href={`/subaccount/${subaccount.id}`}
+                                href={`/subaccount/${subaccount._id}`}
                                 className="flex gap-4 w-full h-full"
                               >
                                 <div className="relative w-16">

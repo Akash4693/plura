@@ -36,6 +36,7 @@ const TeamPage = ({ params }: Props) => {
         }
 
         const data = await response.json();
+        console.log("data:", data)
         setTeamMembers(data);
       } catch (err) {
         console.error("Error fetching team members:", err);

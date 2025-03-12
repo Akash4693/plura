@@ -8,5 +8,5 @@ export interface Permission extends Document {
   user: mongoose.Types.ObjectId; 
   subAccountId: mongoose.Types.ObjectId; 
   access: boolean; 
-  SubAccount?: SubAccount;
+  SubAccount: SubAccount;
 }
