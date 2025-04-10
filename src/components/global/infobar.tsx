@@ -81,8 +81,8 @@ const InfoBar = ({
                     {allNotifications?.map((notification) => {
                         return (
                         <div
-                            key={notification.id}
-                            className="flex flex-col gap-y-2 mb-2 overflow-x-scroll text-ellipsis"
+                            key={notification._id}
+                            className="flex flex-col gap-y-2 my-5 mb-2 text-ellipsis"
                         >
                             <div className="flex gap-2">
                                 <Avatar>

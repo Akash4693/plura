@@ -1,5 +1,6 @@
 "use server";
 
+import { connectDB } from "@/lib/db";
 import { CreateMediaType } from "@/lib/types/media.types";
 import Media from "@/models/media.model";
 import SubAccount from "@/models/sub-account.model";
@@ -10,6 +11,7 @@ export const createMedia = async (
   mediaFile: CreateMediaType
 ) => {
   try {
+    await connectDB();
 
     if (!Types.ObjectId.isValid(subaccountId)) {
       throw new Error("Invalid subaccount ID");

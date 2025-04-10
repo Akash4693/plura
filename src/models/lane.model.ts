@@ -1,5 +1,7 @@
 import mongoose, { Schema,  Model } from "mongoose";
 import type { Lane } from "@/lib/types/lane.types";
+import "@/models/ticket.model";
+import "@/models/pipeline.model";
 
 
 //Lane Schema
@@ -31,6 +33,6 @@ const laneSchema: Schema<Lane> = new Schema({
   
 laneSchema.index({pipelineId: 1});
 
-const Lane: Model<Lane> = mongoose.model<Lane>("Lane", laneSchema);
+const Lane: Model<Lane> = mongoose.models.Lane || mongoose.model<Lane>("Lane", laneSchema);
 export default Lane;
   

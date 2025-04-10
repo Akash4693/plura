@@ -12,6 +12,7 @@ const Page = async ({
 }: {
   searchParams: { plan: SubscriptionPlan; state: string; code: string }
 }) => {
+  const authUser = await currentUser();
   const agencyId = await verifyAndAcceptInvitation()
   console.log("agencyId:", agencyId)
 
@@ -40,7 +41,6 @@ const Page = async ({
       return <div>Not authorized</div>
     }
   }
-  const authUser = await currentUser();
 
 
   return (

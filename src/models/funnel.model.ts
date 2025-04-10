@@ -53,6 +53,6 @@ const funnelSchema: Schema<Funnel> = new Schema({
   
 funnelSchema.index({ subAccountId: 1 });
 
-const Funnel: Model<Funnel> = mongoose.model<Funnel>("Funnel", funnelSchema);
+const Funnel: Model<Funnel> = mongoose.models.Funnel || mongoose.model<Funnel>("Funnel", funnelSchema);
 export default Funnel;
   

@@ -6,6 +6,7 @@ export const POST = async (req: Request) => {
   try {
     const data = await req.json(); // Parse JSON request body
 
+    console.log("Data: ", data)
     if (!data) {
       // Validate data before proceeding
       return NextResponse.json(
@@ -16,6 +17,15 @@ export const POST = async (req: Request) => {
 
     // Call your upsertAgency function
     const result = await upsertAgency(data);
+
+    if (!result) {
+      return NextResponse.json(
+        { message: 'Failed to upsert agency. No result returned.' },
+        { status: 500 }
+      );
+    }
+
+    console.log("Agency upserted successfully", result)
 
     // Return the result in a JSON response with status 200 (OK)
     return NextResponse.json(result, { status: 200 });

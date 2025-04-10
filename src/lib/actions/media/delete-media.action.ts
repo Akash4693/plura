@@ -1,9 +1,11 @@
 "use server";
 
+import { connectDB } from "@/lib/db";
 import Media from "@/models/media.model";
 
 export const deleteMedia = async (mediaId: string) => {
   try {
+    await connectDB();
     const response = await Media.findByIdAndDelete(mediaId);
     
     if (!response) {

@@ -91,6 +91,8 @@ export const initUser = async (newUser: Partial<UserType>) => {
         role: newUser.role || Role.SUBACCOUNT_USER,
       },
     });
+
+    console.log("sanitizedData: ", sanitizedData)
   
     return sanitizedData;  
   } catch (error) {

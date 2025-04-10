@@ -53,6 +53,7 @@ export const getAuthUserDetails = async (): Promise<AuthUserWithAgencySidebarOpt
     console.log("monogodb connected in getAuthuserdetails")
     const user = await currentUser();
 
+
     if(!user) return null;
 
     const userData = await User.findOne({
@@ -85,9 +86,11 @@ export const getAuthUserDetails = async (): Promise<AuthUserWithAgencySidebarOpt
       populate: [
         { path: "sidebarOption", model: "SubAccountSidebarOption" },
       ],
-    })   
+    })
       .lean()
       .exec();
+
+      console.log("userData", userData)
 
       if (!userData) {
         console.log("User data not found in database");
@@ -95,7 +98,7 @@ export const getAuthUserDetails = async (): Promise<AuthUserWithAgencySidebarOpt
       }
       
       
-      
+   
 
     //console.log("User data with populated agency:", userData.agencyId);
       const plainUserData = JSON.parse(JSON.stringify(userData));

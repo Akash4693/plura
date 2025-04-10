@@ -41,13 +41,16 @@ clientPromise
 export default clientPromise;
  */
 
-import mongoose from 'mongoose';
+import mongoose from "mongoose";
 
 // Mongo URI from environment
 const MONGODB_URI = process.env.LOCAL_DATABASE_URL;
 
+
 if (!MONGODB_URI) {
-  throw new Error('❌ Please define the LOCAL_DATABASE_URL environment variable.');
+  throw new Error(
+    "❌ Please define the LOCAL_DATABASE_URL environment variable."
+  );
 }
 
 let isConnected = false;
@@ -61,9 +64,10 @@ export const connectDB = async () => {
     };
 
     if (globalWithMongoConnection._mongooseConnection) {
-      isConnected = globalWithMongoConnection._mongooseConnection.readyState === 1;
+      isConnected =
+        globalWithMongoConnection._mongooseConnection.readyState === 1;
       if (isConnected) {
-        console.log('✅ MongoDB is already connected in development.');
+        console.log("✅ MongoDB is already connected in development.");
         return;
       }
     }
@@ -72,41 +76,41 @@ export const connectDB = async () => {
       const mongooseConnection = await mongoose.connect(MONGODB_URI);
       globalWithMongoConnection._mongooseConnection = mongooseConnection;
       isConnected = true;
-      console.log('✅ MongoDB connected successfully in development mode');
+      console.log("✅ MongoDB connected successfully in development mode");
     } catch (error: any) {
-      console.error('❌ MongoDB connection failed:', error.message);
+      console.error("❌ MongoDB connection failed:", error.message);
       process.exit(1); // Immediately exit with error code
     }
   } else {
     // In production, always ensure a fresh connection
     if (isConnected) {
-      console.log('✅ MongoDB is already connected.');
+      console.log("✅ MongoDB is already connected.");
       return;
     }
 
     try {
       const mongooseConnection = await mongoose.connect(MONGODB_URI!);
       isConnected = true;
-      console.log('✅ MongoDB connected successfully in production mode');
+      console.log("✅ MongoDB connected successfully in production mode");
     } catch (error: any) {
-      console.error('❌ MongoDB connection failed:', error.message);
-      process.exit(1); 
+      console.error("❌ MongoDB connection failed:", error.message);
+      process.exit(1);
     }
   }
 };
 
 // Event listeners for monitoring connection state
-mongoose.connection.on('connected', () => {
-  console.log('✅ MongoDB Event: Connected');
+mongoose.connection.on("connected", () => {
+  console.log("✅ MongoDB Event: Connected");
   isConnected = true;
 });
 
-mongoose.connection.on('error', (err) => {
-  console.error('❌ MongoDB Event: Connection Error:', err.message);
+mongoose.connection.on("error", (err) => {
+  console.error("❌ MongoDB Event: Connection Error:", err.message);
   isConnected = false;
 });
 
-mongoose.connection.on('disconnected', () => {
-  console.warn('⚠️ MongoDB Event: Disconnected');
+mongoose.connection.on("disconnected", () => {
+  console.warn("⚠️ MongoDB Event: Disconnected");
   isConnected = false;
 });

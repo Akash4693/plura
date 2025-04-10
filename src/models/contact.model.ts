@@ -1,5 +1,7 @@
 import mongoose, { Schema, Model } from "mongoose";
 import type { Contact } from "@/lib/types/contact.types";
+import "@/models/sub-account.model";
+import "@/models/ticket.model";
 
 // Contact Schema
 const contactSchema: Schema<Contact> = new Schema({
@@ -31,5 +33,5 @@ const contactSchema: Schema<Contact> = new Schema({
   
 contactSchema.index({ subAccountId: 1 });
   
-const Contact: Model<Contact> = mongoose.model<Contact>("Contact", contactSchema);
+const Contact: Model<Contact> = mongoose.models.Contact || mongoose.model<Contact>("Contact", contactSchema);
 export default Contact;

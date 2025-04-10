@@ -67,7 +67,7 @@ const SubAccountDetails: React.FC<SubAccountDetailsProps> = ({
   const { setClose } = useModal();
   const router = useRouter();
 
-  console.log("agencyDetails here: ", agencyDetails._id)
+  console.log("agencyDetails here: ", agencyDetails)
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
@@ -86,36 +86,44 @@ const SubAccountDetails: React.FC<SubAccountDetailsProps> = ({
   
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
-  
+    
+    const formValues = form.getValues();
     try {
+      
        const subAccountId =  new mongoose.Types.ObjectId();
         
-       
+       console.log("✅ values from submit:", values);
+      console.log("✅ form.getValues():", form.getValues());
+
+        const payload = {
+          _id: subAccountId,
+          address: formValues.address,
+          subAccountLogo: formValues.subAccountLogo,
+          city: formValues.city,
+          companyPhone: formValues.companyPhone,
+          country: formValues.country,
+          name: formValues.name,
+          state: formValues.state,
+          zipCode: formValues.zipCode,
+          companyEmail: formValues.companyEmail,
+          agencyId: agencyDetails._id,
+          connectAccountId: "",
+          goal: 5000,
+        } 
+
        const response = await fetch('/api/sub-account', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
           },
-          body: JSON.stringify({
-        _id: subAccountId,
-        address: values.address,
-        subAccountLogo: values.subAccountLogo,
-        city: values.city,
-        companyPhone: values.companyPhone,
-        country: values.country,
-        name: values.name,
-        state: values.state,
-        zipCode: values.zipCode,
-        companyEmail: values.companyEmail,
-        agencyId: agencyDetails._id,
-        connectAccountId: "",
-        goal: 5000,
-      }),
+          body: JSON.stringify(payload),
     })
 
   
 
     const result = await response.json();
+
+    console.log("Result:", result)
     
       if (!response.ok) throw new Error("No response from server");
       await saveActivityLogsNotification({
@@ -136,6 +144,7 @@ const SubAccountDetails: React.FC<SubAccountDetailsProps> = ({
         throw new Error(result.message || "Failed to save subaccount details.");
       }
     } catch (error) {
+      console.log("Sub account Error:", error)
       toast({
         variant: "destructive",
         title: "Database Error",
@@ -158,7 +167,13 @@ const SubAccountDetails: React.FC<SubAccountDetailsProps> = ({
         subAccountLogo: details.subAccountLogo || "",
       });
     }
-  }, [details]);
+  }, [details, form]);
+
+  useEffect(() => {
+    console.log("form state:", form.formState);
+    console.log("form values:", form.getValues());
+  }, [form.watch()]);
+  
 
   const isLoading = form.formState.isSubmitting;
   //CHALLENGE Create this form.
@@ -194,7 +209,9 @@ const SubAccountDetails: React.FC<SubAccountDetailsProps> = ({
                 disabled={isLoading}
                 control={form.control}
                 name="name"
-                render={({ field }) => (
+                render={({ field }) => {
+                  console.log("FIELD DEBUG:", field);
+                  return (
                   <FormItem className="flex-1">
                     <FormLabel>Account Name</FormLabel>
                     <FormControl>
@@ -206,7 +223,8 @@ const SubAccountDetails: React.FC<SubAccountDetailsProps> = ({
                     </FormControl>
                     <FormMessage />
                   </FormItem>
-                )}
+                  )
+                }}
               />
               <FormField
                 disabled={isLoading}

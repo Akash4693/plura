@@ -31,5 +31,5 @@ const tagSchema: Schema<Tag> = new Schema({
 // Create an index on `subAccountId` for efficient querying
 tagSchema.index({ subAccountId: 1 });
 
-const Tag: Model<Tag> = mongoose.model<Tag>("Tag", tagSchema);
+const Tag: Model<Tag> = mongoose.models.Tag || mongoose.model<Tag>("Tag", tagSchema);
 export default Tag;

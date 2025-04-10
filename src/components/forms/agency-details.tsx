@@ -97,16 +97,25 @@ const AgencyDetails = ({ data }: Props) => {
     },
   });
   // const formRef = useRef(form);
-  // const formRef = useRef(form);
 
 
   useEffect(() => {
-    if (data && JSON.stringify(data) !== JSON.stringify(prevDataRef.current)) {
-      form.reset(data);
-       
-      prevDataRef.current = data; 
+    if (data) {
+      // Reset the form with the new data
+      form.reset({
+        name: data.name || "",
+        companyEmail: data.companyEmail || "",
+        companyPhone: data.companyPhone || "",
+        whiteLabel: data.whiteLabel || false,
+        address: data.address || "",
+        city: data.city || "",
+        zipCode: data.zipCode || "",
+        state: data.state || "",
+        country: data.country || "",
+        agencyLogo: data.agencyLogo || "",
+      });
     }
-  }, [data, form]); /// Make sure to watch `data` and `form`
+  }, [data, form.reset]);/// Make sure to watch `data` and `form`
 
  
   
@@ -328,25 +337,33 @@ const AgencyDetails = ({ data }: Props) => {
         }*/
 
   const handleSubmit = async (values: z.infer<typeof FormSchema>) => {
-   
+   console.log("handle submit values:", values)
+
+   const formValues = form.getValues();
+  console.log("Form state:", formValues)
+
+   console.log("Form state:", form.getValues());
     try {
       let newUserData;
       let custId;
 
-      console.log("Payload before sending: ", {
-        address: values.address,
-        agencyLogo: values.agencyLogo,
-        city: values.city,
-        companyEmail: values.companyEmail,
-        companyPhone: values.companyPhone,
-        connectAccountId: "", // Or use a dynamic value if available
-        country: values.country,
-        goal: 5, // or use values.goal if dynamic
-        name: values.name,
-        state: values.state,
-        whiteLabel: values.whiteLabel,
-        zipCode: values.zipCode
-      });
+      const payload = {
+        address: formValues.address,
+        agencyLogo: formValues.agencyLogo,
+        city: formValues.city,
+        companyPhone: formValues.companyPhone,
+        country: formValues.country,
+        name: formValues.name,
+        state: formValues.state,
+        whiteLabel: formValues.whiteLabel,
+        zipCode: formValues.zipCode,
+        companyEmail: formValues.companyEmail,
+        connectAccountId: data?.connectAccountId || '',
+        goal: data?.goal || 5,
+        customerId: "", // Will be set later
+      };
+      
+      console.log("Payload before sending: ", payload);
   
       // If no existing customer data, create a Stripe customer
       if (!data?.id) {
@@ -380,7 +397,7 @@ const AgencyDetails = ({ data }: Props) => {
         newUserData = await initUser({ role: 'AGENCY_OWNER' });
         
       } catch (initError) {
-        
+        console.error("User initialization error:", initError);
         toast({
           variant: 'destructive',
           title: 'Initialization Error',
@@ -410,21 +427,7 @@ const AgencyDetails = ({ data }: Props) => {
           headers: {
             'Content-Type': 'application/json',
           },
-          body: JSON.stringify({
-            id: data?.id,
-            address: values.address,
-            agencyLogo: values.agencyLogo,
-            city: values.city,
-            companyPhone: values.companyPhone,
-            country: values.country,
-            name: values.name,
-            state: values.state,
-            whiteLabel: values.whiteLabel,
-            zipCode: values.zipCode,
-            companyEmail: values.companyEmail,
-            connectAccountId: '',
-            goal: 5,
-          }),
+          body: JSON.stringify(payload),
         });
   
         const result = await response.json();
@@ -473,10 +476,9 @@ const AgencyDetails = ({ data }: Props) => {
             }
   
         } else {
-          
           toast({
             variant: 'destructive',
-            title: 'Database Error',
+            title: 'Error',
             description: 'Could not save the agency details. Please try again.',
           });
 
@@ -484,7 +486,7 @@ const AgencyDetails = ({ data }: Props) => {
         
       }
       } catch (dbError) {
-        
+        console.log("dbError", dbError)
         toast({
           variant: 'destructive',
           title: 'Database Error',
@@ -578,7 +580,7 @@ const AgencyDetails = ({ data }: Props) => {
                         <Input
                           placeholder="Your Agency Name"
                           {...field}
-                          value={field.value ?? ""}
+                          value={field.value}
                         />
                       </FormControl>
                       <FormMessage />

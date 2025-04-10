@@ -129,10 +129,10 @@ export const upsertAgency = async (agency: Partial<AgencyType>, price?: Subscrip
       throw new Error(`User with email ${agency.companyEmail} not found`);
     }
 
-    // If `_id` is not provided, generate a new one
+    
     const agencyId = agency._id || new mongoose.Types.ObjectId();
 
-    // Construct Sidebar options using the agency ID
+    
     const sidebarOptions = getDefaultAgencySidebarOptions(agencyId.toString()).map(option => ({
           ...option,
           agencyId, // Ensure agencyId is added here
