@@ -86,6 +86,7 @@ export default ModalProvider */
 'use client';
 
 import { Agency } from '@/lib/types/agency.types';
+import { TicketDetails } from '@/lib/types/ticket.types';
 import { User } from '@/lib/types/user.types';
 import { createContext, ReactNode, useContext, useEffect, useState } from 'react';
 
@@ -96,6 +97,7 @@ interface ModalProviderProps {
 export type ModalData = {
   user?: User;
   agency?: Agency;
+  ticket?: TicketDetails[0]
 };
 
 type ModalContextType = {

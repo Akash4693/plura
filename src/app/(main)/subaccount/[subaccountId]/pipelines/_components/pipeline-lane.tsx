@@ -1,10 +1,24 @@
-import React from 'react'
+"use client";
 
-type Props = {}
+import { LaneDetail } from '@/lib/types/lane.types';
+import { TicketWithTags } from '@/lib/types/ticket.types';
+import React, { Dispatch, SetStateAction } from 'react'
 
-const PipelineLane = (props: Props) => {
+interface PipelineLaneProps {
+  setAllTickets: Dispatch<SetStateAction<TicketWithTags[]>>
+  allTickets: TicketWithTags
+  tickets: TicketWithTags
+  pipelineId: string
+  laneDetails: LaneDetail
+  subaccountId: string
+  index: number
+}
+
+const PipelineLane: React.FC<PipelineLaneProps> = ({
+  
+}: Props) => {
   return (
-    <div>PipelineLane</div>
+    <div>PipeLineLane</div>
   )
 }
 

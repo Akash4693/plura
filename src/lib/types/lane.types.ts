@@ -14,7 +14,7 @@ export interface Lane extends Document {
 }
 
 export interface TicketsAndTags extends Omit<Ticket, "customerId" | "assignedUserId" | "tags"> {
-  tags: Types.ObjectId | Tag[];
+  tags: Tag[] | Types.ObjectId;
   assignedUserId: Types.ObjectId | User | null;
   customerId: Types.ObjectId | Contact | null;
 }

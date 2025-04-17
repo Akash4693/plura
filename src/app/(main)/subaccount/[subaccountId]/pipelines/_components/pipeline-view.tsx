@@ -3,11 +3,11 @@
 import LaneForm from '@/components/forms/lane-form';
 import CustomModal from '@/components/global/custom-model';
 import { Button } from '@/components/ui/button';
-import { Lane, LaneDetail } from '@/lib/types/lane.types';
+import { Lane, LaneDetail, TicketsAndTags } from '@/lib/types/lane.types';
 import { PipelineDetailsWithCardsTagsTickets } from '@/lib/types/pipeline.types';
-import { Ticket } from '@/lib/types/ticket.types';
+import { Ticket, TicketWithTags } from '@/lib/types/ticket.types';
 import { useModal } from '@/providers/modal-provider';
-import { Plus } from 'lucide-react';
+import { Flag, Plus } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 import React, { useEffect, useState } from 'react'
 import { DragDropContext, Droppable } from 'react-beautiful-dnd';
@@ -40,6 +40,22 @@ const PipelineView = ({
     setAllLanes(lanes)
 
   }, [lanes])
+
+  const ticketsFromAllLanes: TicketsAndTags[] = []
+
+  lanes.forEach((lane) => {
+    lane.tickets.forEach((ticket) => {
+      // Type check to ensure ticket is of type TicketsAndTags
+      if ((ticket as TicketsAndTags)._id) {
+        ticketsFromAllLanes.push(ticket as TicketsAndTags);
+      } else {
+        // Handle case where ticket is an ObjectId or other type
+        console.warn("Skipping invalid ticket:", ticket);
+      }
+    });
+  });
+  
+  const [allTickets, setAllTickets] = useState<TicketsAndTags[]>(ticketsFromAllLanes)
 
   const handleAddLane = () => {
     setOpen(
@@ -80,13 +96,33 @@ const PipelineView = ({
             >
               <div className="flex mt-4">
                 {allLanes.map((lane, index) => (
-                  <PipelineLane />
+                  <PipelineLane 
+                    allTickets={allTickets}
+                    setAllTickets={setAllTickets}
+                    subaccountId={subaccountId}
+                    pipelineId={pipelineId}
+                    tickets={lane.tickets}
+                    laneDetails={lane}
+                    index={index}
+                    key={lane.id}
+                  />
                 ))}
                 {provided.placeholder}
               </div>
             </div>
           )}
         </Droppable>
+        {allLanes.length === 0 && (
+          <div className="flex items-center justify-center w-full flex-col">
+            <div className="opacity-100">
+              <Flag 
+                width="100%"
+                height="100%"
+                className="text-muted-foreground"
+              />
+            </div>
+          </div>
+        )}
       </div>
     </DragDropContext>
   )
