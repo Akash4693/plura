@@ -9,7 +9,7 @@ import { Contact } from "./contact.types";
 export interface Lane extends Document {
   name: string;
   pipelineId: mongoose.Types.ObjectId; 
-  tickets: mongoose.Types.ObjectId[]; 
+  tickets: mongoose.Types.ObjectId[] | TicketsAndTags[]; 
   order: number;
 }
 
@@ -19,9 +19,9 @@ export interface TicketsAndTags extends Omit<Ticket, "customerId" | "assignedUse
   customerId: Types.ObjectId | Contact | null;
 }
 
-export interface LaneDetail extends Document {
+export interface LaneDetail extends Omit<Lane, "tickets"> {
   name: string
-  tickets:  Types.ObjectId[] | TicketsAndTags[]
+  tickets?:  Types.ObjectId[] | TicketsAndTags[]
 }
 
 

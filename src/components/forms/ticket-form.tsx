@@ -19,7 +19,7 @@ import { z } from 'zod';
 type Props = {
     laneId: string
     subaccountId: string
-    getNewTicket: (ticket: TicketWithTags[0]) => void
+    getNewTicket: (ticket: TicketWithTags) => void
 }
 
 const currencyNumberRegex = /^\d+(\.\d{1,2})?$/;
@@ -113,7 +113,7 @@ const TicketForm = ({ laneId, subaccountId, getNewTicket }: Props) => {
           description: "Ticket has been created",
         })
 
-        if (response) getNewTicket(response)
+        if (response) getNewTicket([response]);
           router.refresh()
 
       } catch (error) {
