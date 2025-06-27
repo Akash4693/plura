@@ -6,4 +6,6 @@ export interface Contact extends Document {
   email: string;
   subAccountId: mongoose.Types.ObjectId;
   ticket: mongoose.Types.ObjectId[];
+  createdAt: Date;
+  updatedAt?: Date;
 }

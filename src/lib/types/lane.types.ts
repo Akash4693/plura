@@ -1,7 +1,7 @@
 import { ObjectId } from 'mongodb';
 import mongoose, { Document, Types } from "mongoose";
 import { Tag } from "./tag.types";
-import { Ticket, TicketCreateInput } from "./ticket.types";
+import { Ticket, TicketCreateInput, TicketsAndTags } from "./ticket.types";
 import { User } from "./user.types";
 import { Contact } from "./contact.types";
 
@@ -13,11 +13,6 @@ export interface Lane extends Document {
   order: number;
 }
 
-export interface TicketsAndTags extends Omit<Ticket, "customerId" | "assignedUserId" | "tags"> {
-  tags: Tag[] | Types.ObjectId;
-  assignedUserId: Types.ObjectId | User | null;
-  customerId: Types.ObjectId | Contact | null;
-}
 
 export interface LaneDetail extends Omit<Lane, "tickets"> {
   name: string

@@ -3,7 +3,7 @@ import { Role } from "@/constants/enums/role.enum";
 import { Agency } from "./agency.types";
 import { Permission } from "./permission.types";
 import { SubAccount } from "./sub-account.types";
-import { getUsersWithAgencySubAccountPermissionsSidebarOptions } from "@/services/user.service";
+import { _getUsersWithAgencySubAccountPermissionsSidebarOptions } from "@/services/user.service";
 
 // Interface for the User document
 export interface User extends Document {
@@ -34,6 +34,6 @@ export type UserWithPermissionsAndSubAccounts = PopulatedUser | null;
 export type AuthUserWithAgencySidebarOptionsSubAccounts = PopulatedUser | null;
 
 export type UsersWithAgencySubAccountPermissionsSidebarOptions = Awaited<
-  ReturnType<typeof getUsersWithAgencySubAccountPermissionsSidebarOptions>
+  ReturnType<typeof _getUsersWithAgencySubAccountPermissionsSidebarOptions>
 >;
 

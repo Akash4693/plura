@@ -68,8 +68,8 @@ const UserDetails = ({ id, type, userData, subAccounts }: Props) => {
   const { toast } = useToast();
   const router = useRouter();
 
+  //console.log( "data in user details", data);
   //Get authUserDetails
-
   useEffect(() => {
     if (data.user) {
       const fetchDetails = async () => {
@@ -83,6 +83,9 @@ const UserDetails = ({ id, type, userData, subAccounts }: Props) => {
       fetchDetails();
     }
   }, [data]);
+
+  console.log("AuthUserData:", authUserData); 
+  
 
   const userDataSchema = z.object({
     name: z
@@ -111,10 +114,13 @@ const UserDetails = ({ id, type, userData, subAccounts }: Props) => {
 
   useEffect(() => {
     if (!data.user) return;
+    console.log("data in user details: ", data.user)
     const getPermissions = async () => {
       try {
+        console.log("Fetching permissions for user:", data.user);
         if (!data.user) return;
-        const permission = await getUserPermissions(data.user.id);
+        const permission = await getUserPermissions(data.user._id.toString());
+      console.log("Fetched permissions:", permission);
         setSubAccountPermissions(permission);
       } catch (error) {
         console.error("Error fetching user permissions", error);
@@ -134,44 +140,50 @@ const UserDetails = ({ id, type, userData, subAccounts }: Props) => {
 
   const role = form.watch("role"); // Watch role field
 
-useEffect(() => {
-  if (role === Role.SUBACCOUNT_USER || role === Role.SUBACCOUNT_GUEST) {
-    setRoleState(
-      "You must have subaccounts to grant Subaccount access to team members."
-    );
-  } else {
-    setRoleState("");
-  }
-}, [role]); 
-
+  useEffect(() => {
+    if (role === Role.SUBACCOUNT_USER || role === Role.SUBACCOUNT_GUEST) {
+      setRoleState(
+        "You must have subaccounts to grant Subaccount access to team members."
+      );
+    } else {
+      setRoleState("");
+    }
+  }, [role]);
+  
+  console.log("subAccountPermissions:", subAccountPermissions)
+  
   const onChangePermission = async (
     subAccountId: string,
-    val: boolean,
+    value: boolean,
     permissionsId: string | undefined
   ) => {
+    console.log("onChangeParameter", subAccountId, value, permissionsId)
     if (!data.user?.email) return;
     setLoadingPermissions(true);
 
-    const permissionId = permissionsId
-      ? new mongoose.Types.ObjectId(permissionsId)
-      : new mongoose.Types.ObjectId();
+    //  const permissionId = permissionsId
+    //   /* ? */ new mongoose.Types.ObjectId(permissionsId)
+    //   : new mongoose.Types.ObjectId(); 
+
+      console.log("permissionsId: ", permissionsId?.toString())
 
     const response = await changeUserPermissions(
-      permissionId.toString(),
+      permissionsId?.toString(),
       data.user.email,
       subAccountId,
-      val
+      value
     );
+    //console.log("response => ", response)
     if (type === "agency") {
-      const permission = subAccountPermissions?.Permissions?.find(
-        (p) => p.subAccountId.toString() === subAccountId.toString()
+      const permission = subAccountPermissions?.permissions?.find(
+        (p) => p.SubAccount._id.toString() === subAccountId.toString()
       );
-
+      console.log("permission => ", permission);
       if (permission?.SubAccount) {
         await saveActivityLogsNotification({
-          agencyId: authUserData?.Agency?.id,
+          agencyId: authUserData?.Agency?._id,
           description: `Gave ${userData?.name} access to | ${permission.SubAccount.name}`,
-          subAccountId: permission.SubAccount.id,
+          subAccountId: permission.SubAccount._id.toString(),
         });
       } else {
         console.error(
@@ -205,24 +217,29 @@ useEffect(() => {
     setLoadingPermissions(false);
   };
 
-  const onSubmit = async (values: z.infer<typeof userDataSchema>) => {
+  //console.log("On change permission ", onChangePermission);
+
+  const onSubmit = async (value: z.infer<typeof userDataSchema>) => {
     if (!id) return null;
-  
+
+    const values = form.getValues();
+
     console.log("values:", values);
-  
+
     if (userData || data?.user) {
       try {
         // Call the API to update the user
-        const response = await fetch('/api/update-user', {
-          method: 'POST',
+        const response = await fetch("/api/update-user", {
+          method: "POST",
           headers: {
-            'Content-Type': 'application/json',
+            "Content-Type": "application/json",
           },
           body: JSON.stringify(values), // Pass user data to API
         });
-  
+
         const result = await response.json(); // Parse the JSON response
-  
+
+        console.log("result:", result);
         if (response.ok) {
           // On success, save activity log and update UI
           authUserData?.Agency?.subAccounts
@@ -239,7 +256,7 @@ useEffect(() => {
                 subAccountId: subAccount.id,
               });
             });
-  
+
           toast({
             title: "Success",
             description: "User Information Updated Successfully",
@@ -251,7 +268,9 @@ useEffect(() => {
           toast({
             variant: "destructive",
             title: "Update Failed",
-            description: result.message || "Could not update user information. Please try again.",
+            description:
+              result.message ||
+              "Could not update user information. Please try again.",
           });
         }
       } catch (error) {
@@ -259,14 +278,14 @@ useEffect(() => {
         toast({
           variant: "destructive",
           title: "Update Failed",
-          description: "An error occurred while updating the user. Please try again.",
+          description:
+            "An error occurred while updating the user. Please try again.",
         });
       }
     } else {
       console.log("Error: User information submission failed.");
     }
   };
-  
 
   return (
     <Card className="w-full">
@@ -301,7 +320,7 @@ useEffect(() => {
               name="name"
               render={({ field }) => (
                 <FormItem className="flex-1">
-                  <FormLabel>User full name</FormLabel>
+                  <FormLabel>Full name</FormLabel>
                   <FormControl>
                     <Input required placeholder="Full Name" {...field} />
                   </FormControl>
@@ -384,15 +403,17 @@ useEffect(() => {
                 </FormDescription>
                 <div className="flex flex-col gap-4">
                   {subAccounts?.map((subAccount) => {
+                    console.log("Enable subAccount:", subAccounts)
                     const subAccountPermissionsDetails =
-                      subAccountPermissions?.Permissions?.find(
+                      subAccountPermissions?.permissions?.find(
                         (p) =>
                           p.subAccountId?.toString() ===
                           subAccount._id.toString()
-                      )
+                      );
+                      console.log("SubAccountId:", subAccountPermissionsDetails);
                     return (
                       <div
-                        key={subAccount.id}
+                        key={subAccount._id.toString()}
                         className="flex items-center justify-between rounded-lg border p-4"
                       >
                         <div>
@@ -403,10 +424,10 @@ useEffect(() => {
                           checked={subAccountPermissionsDetails?.access}
                           onCheckedChange={(permission) => {
                             onChangePermission(
-                              subAccount.id,
+                              subAccount._id.toString(),
                               permission,
-                              subAccountPermissionsDetails?.id
-                            )
+                              subAccountPermissionsDetails?._id.toString()
+                            );
                           }}
                         />
                       </div>

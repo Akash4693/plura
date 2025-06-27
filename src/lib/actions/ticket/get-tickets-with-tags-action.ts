@@ -1,7 +1,8 @@
 "use server";
 
 import { connectDB } from "@/lib/db";
-import { TicketsAndTags } from "@/lib/types/lane.types";
+import { TicketsAndTags } from "@/lib/types/ticket.types";
+
 import Lane from "@/models/lane.model";
 import Ticket from "@/models/ticket.model";
 

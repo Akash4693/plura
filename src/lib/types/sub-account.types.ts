@@ -2,6 +2,7 @@ import mongoose, { Document, Types } from "mongoose";
 import { SubAccountSidebarOption } from "./sub-account-sidebar-option.types";
 import { Agency } from "./agency.types";
 import { Permission } from "./permission.types";
+import { Tag } from "./tag.types";
 
 // Interface for the SubAccount document
 export interface SubAccount extends Document {
@@ -26,7 +27,7 @@ export interface SubAccount extends Document {
   trigger: Types.ObjectId[];
   automation: Types.ObjectId[];
   pipeline: Types.ObjectId[] | string;
-  tags: Types.ObjectId[];
+  tags: Types.ObjectId[] | Tag[];
   notification: Types.ObjectId[];
 }
 

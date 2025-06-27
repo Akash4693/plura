@@ -15,15 +15,16 @@ export const updateUser = async (user: Partial<UserType>) => {
         console.error("No authenticated user found in clerk")
         return;
     }
-    console.log("monogodb connected in update user");
-    console.log("updateuser users", clerkCurrentUser)
-
+   
+    
     const response = await User.findOneAndUpdate(
+      
       { email: user.email },
       { $set: { ...user } },
       { new: true }
     ).lean();
 
+    console.log("user", user.email)
     console.log("UpdateUser response:", response);
 
     if (!response) {

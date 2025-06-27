@@ -64,7 +64,12 @@ const SendInvitation: React.FC<SendInvitationProps> = ({ agencyId }) => {
     },
   });
 
-  const onSubmit = async (values: z.infer<typeof userDataSchema>) => {
+  const onSubmit = async (value: z.infer<typeof userDataSchema>) => {
+
+    const values = form.getValues();
+    console.log("values", values);
+    console.log("value", value);
+    
     try {
       const response = await sendInvitation(
         values.role,

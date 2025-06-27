@@ -16,7 +16,7 @@ export const POST = async (req: Request) => {
     // Call your upsertSubAccount function
     const result = await upsertSubAccount(data);
 
-    console.log("subahan result",result)
+    console.log("upsert subaccount result",result)
 
     return NextResponse.json(result, { status: 200 });
     

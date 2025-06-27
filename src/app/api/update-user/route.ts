@@ -7,6 +7,8 @@ export const POST = async (req: Request) => {
   try {
     const data = await req.json(); 
 
+    console.log("post data",data)
+
     if (!data) {
       
       return NextResponse.json(

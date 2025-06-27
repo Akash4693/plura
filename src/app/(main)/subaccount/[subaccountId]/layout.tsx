@@ -31,7 +31,7 @@ const SubaccountLayout = async ({ children, params }: Props) => {
     return <Unauthorized />;
   } else {
     const allPermissions = await getAuthUserDetails();
-  //  console.log("allPermissions", allPermissions?.Permissions)
+   // console.log("allPermissions: ", allPermissions?.Permissions)
     
     const hasPermission = allPermissions?.permissions?.find(
       (permission) =>
@@ -39,7 +39,7 @@ const SubaccountLayout = async ({ children, params }: Props) => {
         permission.subAccountId?._id?.toString() === params.subaccountId
     ); 
 
-    //console.log("hasPermission", hasPermission)
+   // console.log("hasPermission", hasPermission)
 
     if (!hasPermission) {
       return <Unauthorized />;

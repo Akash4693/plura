@@ -83,7 +83,7 @@ export const useModal = () => {
 
 export default ModalProvider */
 
-'use client';
+/* 'use client';
 
 import { Agency } from '@/lib/types/agency.types';
 import { TicketDetails } from '@/lib/types/ticket.types';
@@ -162,6 +162,115 @@ const ModalProvider: React.FC<ModalProviderProps> = ({ children }) => {
     <ModalContext.Provider value={{ data, isOpen, setOpen, setClose }}>
       {children}
       {isOpen && modalContent}
+    </ModalContext.Provider>
+  );
+};
+
+export const useModal = () => {
+  const context = useContext(ModalContext);
+  if (!context) {
+    throw new Error('useModal must be used within the ModalProvider');
+  }
+  
+  return context;
+};
+
+export default ModalProvider;
+ */
+
+
+'use client';
+
+import { Agency } from '@/lib/types/agency.types';
+import { TicketDetails } from '@/lib/types/ticket.types';
+import { User } from '@/lib/types/user.types';
+import { createContext, ReactNode, useContext, useEffect, useState } from 'react';
+
+interface ModalProviderProps {
+  children: React.ReactNode;
+}
+
+export type ModalData = {
+  user?: User;
+  agency?: Agency;
+  ticket?: TicketDetails[0]
+};
+
+type ModalContextType = {
+  data: ModalData;
+  isOpen: boolean;
+  setOpen: (modal: React.ReactNode, fetchData?: () => Promise<any>) => void;
+  setClose: () => void;
+};
+
+export const ModalContext = createContext<ModalContextType | null>(null);
+
+const ModalProvider: React.FC<ModalProviderProps> = ({ children }) => {
+  const [isOpen, setIsOpen] = useState(false);
+  const [data, setData] = useState<ModalData>({});
+  const [showingModal, setShowingModal] = useState<React.ReactNode>(null);
+  const [isMounted, setIsMounted] = useState(false);
+
+  useEffect(() => {
+    setIsMounted(true);
+  }, []);
+
+  const setOpen = async (
+    modal: React.ReactNode,
+    fetchData?: () => Promise<any>
+  ) => {
+    console.log("🔹 setOpen triggered with modal:", modal);
+  
+    if (!modal) {
+      console.warn("⚠️ No modal passed to setOpen");
+      return;
+    }
+  
+    let fetchedData = {};
+    if (fetchData) {
+      try {
+        fetchedData = await fetchData();
+        console.log("✅ Fetched Data:", fetchedData);
+        
+        // Clean fetched data to prevent circular references
+        fetchedData = JSON.parse(JSON.stringify(fetchedData));
+      } catch (error) {
+        console.error("❌ Error fetching modal data:", error);
+        fetchedData = {}; // Reset to empty object on error
+      }
+    }
+  
+    // Use functional update to prevent stale state issues
+    setData((prevData) => {
+      const newData = { ...prevData, ...fetchedData };
+      // Clean the data to prevent circular references
+      try {
+        return JSON.parse(JSON.stringify(newData));
+      } catch (error) {
+        console.error("Error serializing modal data:", error);
+        return prevData; // Return previous data if serialization fails
+      }
+    });
+    
+    setShowingModal(modal);
+    setIsOpen(true);
+  
+    console.log("🔹 State after setOpen:", { isOpen: true, showingModal: modal });
+  };
+
+  const setClose = () => {
+    console.log("🔹 Closing modal...");
+    setIsOpen(false);
+    setData({});
+    setShowingModal(null);
+  };
+
+  if (!isMounted) return null;
+
+  return (
+    <ModalContext.Provider value={{ data, isOpen, setOpen, setClose }}>
+      {children}
+      {isOpen && showingModal}
     </ModalContext.Provider>
   );
 };

@@ -220,7 +220,7 @@ const MenuOptions = ({
                             ) : (
                               <SheetClose asChild>
                                 <Link
-                                  href={`/subaccount/${subaccount.id}`}
+                                  href={`/subaccount/${subaccount._id}`}
                                   className="flex gap-4 w-full h-full"
                                 >
                                   <div className="relative w-16">

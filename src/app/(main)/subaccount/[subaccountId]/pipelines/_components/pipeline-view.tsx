@@ -3,9 +3,9 @@
 import LaneForm from "@/components/forms/lane-form";
 import CustomModal from "@/components/global/custom-model";
 import { Button } from "@/components/ui/button";
-import { Lane, LaneDetail, TicketsAndTags } from "@/lib/types/lane.types";
+import { Lane, LaneDetail } from "@/lib/types/lane.types";
 import { PipelineDetailsWithCardsTagsTickets } from "@/lib/types/pipeline.types";
-import { Ticket, TicketWithTags } from "@/lib/types/ticket.types";
+import { Ticket, TicketsAndTags, TicketWithTags } from "@/lib/types/ticket.types";
 import { useModal } from "@/providers/modal-provider";
 import { Flag, Plus } from "lucide-react";
 import { useRouter } from "next/navigation";
@@ -114,7 +114,7 @@ const PipelineView = ({
                       tickets={laneTickets}
                       laneDetails={lane}
                       index={index}
-                      key={lane.id}
+                      key={lane._id}
                     />
                   );
                 })}

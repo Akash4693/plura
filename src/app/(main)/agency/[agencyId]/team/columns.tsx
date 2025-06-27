@@ -10,6 +10,7 @@ import { Role } from "@/constants/enums/role.enum";
 import { useToast } from "@/hooks/use-toast";
 import { deleteUser } from "@/lib/actions/user/delete-user.action";
 import { getUser } from "@/lib/actions/user/get-user.action";
+import { PopulatedPermission } from "@/lib/types/permission.types";
 
 import { UsersWithAgencySubAccountPermissionsSidebarOptions } from "@/lib/types/user.types";
 import { useModal } from "@/providers/modal-provider";
@@ -68,16 +69,18 @@ ColumnDef<UsersWithAgencySubAccountPermissionsSidebarOptions>[] =
         cell: ({ row }) => {
             const role = row.getValue("role") as Role;
             const isAgencyOwner = role === Role.AGENCY_OWNER;
-            const permissions = row.original?.Permissions || []; // Ensure Permissions is an array
-            const ownedAccounts = permissions.filter(per => per.access && per.SubAccount);
+            const permissions = row.original?.permissions || []; // Ensure Permissions is an array
+            const ownedAccounts = permissions.filter(per => per.access && per.subAccountId) as PopulatedPermission[];
 
             console.log("Row Data:", row.original);
+            console.log("permissions:", permissions); 
+            
 
             if (isAgencyOwner) 
                 return (
                    <div className="flex flex-col items-start">
                     <div className="flex flex-col gap-2">
-                    <Badge className="bg-slate-600 whitespace-nowrap">
+                    <Badge className="bg-indigo-500 whitespace-nowrap">
                       Agency -  {row?.original?.Agency?.name}
                     </Badge>
                     </div>
@@ -89,8 +92,8 @@ ColumnDef<UsersWithAgencySubAccountPermissionsSidebarOptions>[] =
                     <div className="flex flex-col gap-2">
                         {ownedAccounts?.length ? (
                             ownedAccounts.map((account) => (
-                                <Badge key={account.id} className="bg-slate-600 w-fit whitespace-nowrap">
-                        Sub Account - {account.SubAccount?.name}
+                                <Badge key={account._id.toString()} className="bg-indigo-500 w-fit whitespace-nowrap">
+                        Sub Account - {account.subAccountId?.name}
                     </Badge>
                         )) 
                     ): (
@@ -113,7 +116,7 @@ ColumnDef<UsersWithAgencySubAccountPermissionsSidebarOptions>[] =
                     className={clsx({
                         "bg-emerald-500": role === Role.AGENCY_OWNER,
                         "bg-orange-400": role === Role.AGENCY_ADMIN,
-                        "bg-primary/20": role === Role.SUBACCOUNT_USER,
+                        "bg-primary": role === Role.SUBACCOUNT_USER,
                         "bg-muted": role === Role.SUBACCOUNT_GUEST,
                     })}
                 >
@@ -142,10 +145,34 @@ const CellActions: React.FC<CellActionsProps> = ({ rowData }) => {
     const { toast } = useToast()
     const [loading, setLoading] = useState(false)
     const router = useRouter()
-    console.log("rowData", rowData)
+
+    const removeUser = async () => {
+        if (!rowData?._id) return null
+        try {
+            setLoading(true)
+            await deleteUser(rowData?._id.toString())
+            toast({
+                title: "User Deleted",
+                description: "The user and all related data have been removed.",
+            })
+            router.refresh()
+        } catch (error) {
+            console.error("Error deleting user:", error)
+            toast({
+                title: "Error",
+                description: "Failed to delete user. Please try again.",
+                variant: "destructive",
+            })
+        } finally {                  
+            setLoading(false)
+        }
+    }
+
+    //console.log("rowData", rowData)
     if (!rowData) return null
-    console.log("rowData agency", rowData.Agency)
-    if (!rowData?.Agency) return null
+    console.log("rowData agency", rowData.agencyId)
+    if (!rowData?.agencyId) return null
+
 
     return (
         <AlertDialog>
@@ -155,7 +182,7 @@ const CellActions: React.FC<CellActionsProps> = ({ rowData }) => {
                         variant="ghost"
                         className="h-8 w-8 p-0"
                     >
-                        <span className="sr-only">Open menu</span>
+                        <span className="sr-only ">Open menu</span>
                         <MoreHorizontal className="h-4 w-4" />
                     </Button>
                 </DropdownMenuTrigger>
@@ -191,11 +218,11 @@ const CellActions: React.FC<CellActionsProps> = ({ rowData }) => {
                         <Edit size={15} />
                         Edit Details
                     </DropdownMenuItem>
-                    {rowData.role === Role.AGENCY_OWNER && (
+                    {rowData.role !== Role.AGENCY_OWNER && (
                         <AlertDialogTrigger asChild>
                             <DropdownMenuItem
                                 className="flex gap-2"
-                                onClick={() => {}}
+                                onClick={() => {removeUser}}
                             >
                                 <Trash size={15} />Remove User
                             </DropdownMenuItem>

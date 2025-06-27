@@ -51,7 +51,7 @@ export const GET = async (req: Request) => {
 "use server";
 
 import { NextResponse } from "next/server";
-import { getUsersWithAgencySubAccountPermissionsSidebarOptions } from "@/services/user.service";
+import { _getUsersWithAgencySubAccountPermissionsSidebarOptions } from "@/services/user.service";
 import { PopulatedUser } from "@/lib/types/user.types";
 
 export const GET = async (req: Request) => {
@@ -65,7 +65,7 @@ export const GET = async (req: Request) => {
       return NextResponse.json({ error: "Missing agencyId" }, { status: 400 });
     }
 
-    const users = await getUsersWithAgencySubAccountPermissionsSidebarOptions(
+    const users = await _getUsersWithAgencySubAccountPermissionsSidebarOptions(
       agencyId
     );
 

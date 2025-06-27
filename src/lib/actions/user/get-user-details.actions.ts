@@ -90,7 +90,7 @@ export const getAuthUserDetails = async (): Promise<AuthUserWithAgencySidebarOpt
       .lean()
       .exec();
 
-      console.log("userData", userData)
+     // console.log("userData", userData)
 
       if (!userData) {
         console.log("User data not found in database");

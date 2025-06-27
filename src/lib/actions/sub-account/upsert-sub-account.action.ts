@@ -223,12 +223,16 @@ import Permission from '@/models/permission.model';
 import SubAccountSidebarOption from '@/models/sub-account-sidebar-option.model';
 import Agency from '@/models/agency.model';
 
+
 export const upsertSubAccount = async (subAccount: Partial<SubAccountType>) => {
+  
   if (!subAccount.companyEmail) return null;
 
   try {
     await connectDB(); // Ensure database connection
+    console.log("✅ MongoDB connected in upsertSubAccount");
 
+    console.log("Upsert subAccount:", subAccount);
     // Find the agency owner
     const agencyOwner = await User.findOne({
       agencyId: subAccount.agencyId,

@@ -25,14 +25,15 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { deleteLane } from "@/lib/actions/lane/delete-lane-action";
 import { saveActivityLogsNotification } from "@/lib/actions/notification/save-activity-logs-notification.actions";
-import { LaneDetail, TicketsAndTags } from "@/lib/types/lane.types";
-import { TicketWithTags } from "@/lib/types/ticket.types";
+import { LaneDetail } from "@/lib/types/lane.types";
+import { TicketsAndTags, TicketWithTags } from "@/lib/types/ticket.types";
 import { cn } from "@/lib/utils/classNames";
 import { useModal } from "@/providers/modal-provider";
 import { Edit, MoreVertical, PlusCircleIcon, Trash } from "lucide-react";
 import { useRouter } from "next/navigation";
 import React, { Dispatch, SetStateAction, useMemo } from "react";
 import { Draggable, Droppable } from "react-beautiful-dnd";
+import PipelineTicket from "./pipeline-ticket";
 
 //WIP Wire up tickets
 interface PipelineLaneProps {
@@ -63,12 +64,13 @@ const PipelineLane: React.FC<PipelineLaneProps> = ({
   });
 
   const laneAmount = useMemo(() => {
-    console.log("tickets", tickets);
-    return tickets.reduce(
-      (sum, ticket) => sum + (Number(ticket?.value) || 0), // Accessing the value of each individual ticket
-      0
-    );
-  }, [tickets]);
+  return tickets.reduce((sum, ticket) => {
+    const raw = ticket?.value;
+    const normalized = +((raw as any)?.$numberDecimal ?? raw); // <-- magic line
+    console.log("ticket.value =>", normalized);
+    return sum + (normalized || 0);
+  }, 0);
+}, [tickets]);
 
   const randomColor = `#${Math.random().toString(16).slice(2, 8)}`;
 
@@ -104,7 +106,7 @@ const PipelineLane: React.FC<PipelineLaneProps> = ({
       const response = await deleteLane(laneDetails._id);
       await saveActivityLogsNotification({
         agencyId: undefined,
-        description: `Deleted lane ${laneDetails.name}`,
+        description: `Deleted lane ${response?.name}`,
         subAccountId: subaccountId,
       });
       router.refresh();
@@ -113,7 +115,7 @@ const PipelineLane: React.FC<PipelineLaneProps> = ({
     }
   };
 
-  console.log("laneDetails", laneDetails)
+  console.log("laneDetails", laneDetails);
 
   return (
     <Draggable
@@ -178,14 +180,21 @@ const PipelineLane: React.FC<PipelineLaneProps> = ({
                     type="ticket"
                   >
                     {(provided) => (
-                      <div className="max-h-[700px] pt-12">
+                      <div className="max-h-[700px] pt-12 overflow-y-auto scrollbar-hide ">
                         <div
                           {...provided.droppableProps}
                           ref={provided.innerRef}
                           className="mt-2"
                         >
                           {tickets.map((ticket, index) => (
-                            <div key={laneDetails._id}></div>
+                            <PipelineTicket
+                              allTickets={allTickets}
+                              setAllTickets={setAllTickets}
+                              subaccountId={subaccountId}
+                              ticket={ticket}
+                              key={ticket._id.toString()}
+                              index={index}
+                            />
                           ))}
                           {provided.placeholder}
                         </div>
@@ -196,7 +205,7 @@ const PipelineLane: React.FC<PipelineLaneProps> = ({
                   <DropdownMenuContent>
                     <DropdownMenuLabel>Options</DropdownMenuLabel>
                     <DropdownMenuSeparator />
-                    <AlertDialogTrigger>
+                    <AlertDialogTrigger asChild>
                       <DropdownMenuItem className="flex items-center gap-2">
                         <Trash size={15} />
                         Delete

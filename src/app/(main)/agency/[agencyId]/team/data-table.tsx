@@ -45,6 +45,9 @@ const DataTable = <TData, TValue>({
     getCoreRowModel: getCoreRowModel(),
     getFilteredRowModel: getFilteredRowModel(),
   });
+
+ 
+  
   return (
     <>
       <div className="flex items-center justify-between">

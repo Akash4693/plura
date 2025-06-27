@@ -50,12 +50,18 @@ export const getSubAccountTeamMembers = async (subaccountId: string) => {
         },
         select: "subAccountId access",
       })
+      .lean()
       .exec();
+
+      console.log("Subaccount Users with Access:", subaccountUsersWithAccess);
+    
 
     // Filter the users who actually have permissions for the specific subaccount
     const usersWithPermissions = subaccountUsersWithAccess.filter(
       (user) => Array.isArray(user.permissions) && user.permissions.length > 0
     );
+
+    console.log("users with permissions", usersWithPermissions);
 
     return usersWithPermissions;
   } catch (error) {

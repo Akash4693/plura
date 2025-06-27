@@ -21,6 +21,8 @@ const layout = async ({children, params}: Props) => {
    const agencyId = await verifyAndAcceptInvitation()
     const user = await currentUser();
 
+    //console.log("layout user", user);
+
     if (!user) {
         return redirect("/")
     }
@@ -30,7 +32,8 @@ const layout = async ({children, params}: Props) => {
 
     if (
         user.privateMetadata.role !== Role.AGENCY_OWNER && 
-        user.privateMetadata.role !== Role.AGENCY_ADMIN
+        user.privateMetadata.role !== Role.AGENCY_ADMIN &&
+        user.privateMetadata.role !== Role.SUBACCOUNT_USER
     )
     return <Unauthorized />
 

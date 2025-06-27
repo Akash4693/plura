@@ -27,7 +27,7 @@ export const getNotificationAndUser = async (
       .lean() // Ensure the main notification object is a plain object
       .exec(); // Executes the query
       
-
+      
       return notifications.map(({ userId, ...notification }) => ({
         ...notification,
         user: userId, // Rename userId to user

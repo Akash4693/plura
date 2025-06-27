@@ -18,7 +18,7 @@ const ticketSchema: Schema<Ticket> = new Schema({
       default: 0,
     },
     value: { 
-      type: mongoose.Schema.Types.Decimal128,  // Use Decimal128 for efficient storage of decimals
+      type: Number,  // Use Decimal128 for efficient storage of decimals
       default: null, 
     },
     description: { 

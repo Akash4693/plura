@@ -142,13 +142,13 @@ console.log("All Invitations for Email:", invitations);
       return null;
     }
   } else {
-    const agency = await Agency.findOne({
-      companyEmail: user.emailAddresses[0].emailAddress,
+    const agency = await User.findOne({
+      email: user.emailAddresses[0].emailAddress,
     }).lean();
 
-   // console.log("Agency found:", agency);
+   console.log("Agency found:", agency);
 
     // Convert _id to string and remove any non-serializable fields (like methods)
-    return agency?._id ? agency._id.toString() : null;
+    return agency?.agencyId ? agency.agencyId.toString() : null;
   }
 };

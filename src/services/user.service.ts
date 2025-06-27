@@ -5,22 +5,17 @@ import { PopulatedUser } from "@/lib/types/user.types";
 import User from "@/models/user.model";
 import { Types } from "mongoose";
 
-export const getUsersWithAgencySubAccountPermissionsSidebarOptions = async (
+export const _getUsersWithAgencySubAccountPermissionsSidebarOptions = async (
   agencyId: string
 ): Promise<PopulatedUser | null> => {
   try {
     await connectDB();
     console.log("User service connected");
 
-    if (!Types.ObjectId.isValid(agencyId)) {
-      console.error("Invalid agencyId:", agencyId);
-      return null;
-    }
+    if (!Types.ObjectId.isValid(agencyId)) return null;
 
-    const objectIdAgencyId = new Types.ObjectId(agencyId);
-    console.log("Converted agencyId to ObjectId:", objectIdAgencyId);
-
-    const user = await User.findOne({ agencyId: objectIdAgencyId })
+   
+    const user = await User.findOne({ agencyId: new Types.ObjectId(agencyId) })
       .populate({
         path: "agencyId",
         model: "Agency",
@@ -37,7 +32,8 @@ export const getUsersWithAgencySubAccountPermissionsSidebarOptions = async (
           model: "SubAccount",
         },
       })
-      .lean();
+      .lean()
+      .exec();
 
     console.log("Fetched User:", user);
 
@@ -52,3 +48,5 @@ export const getUsersWithAgencySubAccountPermissionsSidebarOptions = async (
     return null;
   }
 };
+
+

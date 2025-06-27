@@ -27,7 +27,7 @@ const PipelineSettings = ({
     const router = useRouter()
 
     const currentPipeline = pipelines.find((pipeline) => pipeline._id === pipelineId)
-
+    
   return (
     <AlertDialog>
         <div>
@@ -37,7 +37,7 @@ const PipelineSettings = ({
                 </AlertDialogTrigger>
                 <AlertDialogContent>
                     <AlertDialogHeader>
-                        <AlertDialogTitle>Delete This Pipeline</AlertDialogTitle>
+                        <AlertDialogTitle>Delete  This Pipeline</AlertDialogTitle>
                         <AlertDialogDescription>This Pipeline will be deleted permanently.</AlertDialogDescription>
                     </AlertDialogHeader>
                     <AlertDialogFooter className="items-center">
@@ -45,7 +45,16 @@ const PipelineSettings = ({
                         <AlertDialogAction
                             onClick={async () => {
                                 try {
-                                    await deletePipeline(pipelineId)
+                                    const response = await fetch(`/api/pipelines/${pipelineId}`, {
+                                        method: 'DELETE',
+                                        headers: {
+                                          'Content-Type': 'application/json',
+                                        },
+                                      });
+                                  
+                                      if (!response.ok) {
+                                        throw new Error('Failed to delete pipeline');
+                                      }
                                     
                                     await saveActivityLogsNotification({
                                             agencyId: undefined,

@@ -15,6 +15,7 @@ const TagComponent: React.FC<TagComponentProps> =({
     selectedColor,
 }) => {
     return (
+    
         <div className={clsx("p-2 rounded-sm flex-shrink-0 text-xs cursor-pointer",
             {
                 "bg-[#57acea]/10 text-[#57acea]": colorName === "BLUE",

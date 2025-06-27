@@ -29,6 +29,8 @@ const CreateSubaccountButton = ({ user, id, className }: Props) => {
 
     if (!agencyDetails) return null;
 
+    console.log("sub user id:", user)
+
   return (
     <Button
         className={twMerge("w-full flexibility gap-4", className)}
