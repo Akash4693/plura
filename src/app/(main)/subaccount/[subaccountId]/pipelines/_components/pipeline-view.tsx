@@ -10,7 +10,7 @@ import { useModal } from "@/providers/modal-provider";
 import { Flag, Plus } from "lucide-react";
 import { useRouter } from "next/navigation";
 import React, { useEffect, useState } from "react";
-import { DragDropContext, Droppable } from "react-beautiful-dnd";
+import { DragDropContext, Droppable, DropResult } from "react-beautiful-dnd";
 import PipelineLane from "./pipeline-lane";
 //import { DragDropContext, DropResult, Droppable } from 'react-beautiful-dnd';
 
@@ -59,7 +59,7 @@ const PipelineView = ({
       ticketsByLanes.push([]); // Add empty array for lanes without tickets
     }
   });
-  
+
 
   const [allTickets, setAllTickets] =
     useState<TicketsAndTags[][]>(ticketsByLanes);
@@ -75,8 +75,87 @@ const PipelineView = ({
     );
   };
 
+  
+const onDragEnd = async (dropResult: DropResult) => {
+  console.log("🎯 Drop result: ", dropResult)
+  const { destination, source, type } = dropResult
+
+  if (
+    !destination || 
+    (destination.droppableId === source.droppableId && 
+      destination.index === source.index)
+    ) {
+    return
+  }
+
+  switch (type) {
+    case "lane": {
+      const newLanes = [...allLanes]
+        .toSpliced(source.index, 1)
+        .toSpliced(destination.index, 0, allLanes[source.index])
+        .map((lane, idx) => {
+          return { ...lane, order: idx }
+        })
+
+        setAllLanes(newLanes)
+        updateLanesOrder(newLanes)
+        break
+    }
+
+    case "ticket": {
+        let newLanes = [...allLanes]
+        console.log("all lanes: ", newLanes)
+        const originLane = newLanes.find(
+          (lane) => lane._id === source.droppableId
+        )
+        const destinationLane = newLanes.find(
+          (lane) => lane._id === destination.droppableId
+        )
+
+        if (!originLane || !destinationLane) {
+          return
+        }
+
+        if (source.droppableId === destination.droppableId) {
+          const newOrderedTickets = [...originLane.tickets]
+          .toSpliced(source.index, 1)
+          .toSpliced(destination.index, 0, originLane.tickets[source.index])
+          .map((item, idx) => {
+            return { ...item, order: idx }
+          })
+          originLane.tickets = newOrderedTickets
+          setAllLanes(newLanes)
+          updateTicketsOrder(newOrderedTickets)
+          router.refresh()
+        } else {
+          const [currentTicket] = originLane.tickets.splice(source.index, 1)
+
+          originLane.tickets.forEach((ticket, idx) => {
+            ticket.order = idx
+          })
+
+          destinationLane.tickets?.splice(destination.index, 0, {
+            ...currentTicket,
+            laneId: destination.droppableId.toString(),
+          })
+
+          destinationLane.tickets?.forEach((ticket, idx) => {
+            ticket.order = idx
+          })
+          setAllLanes(newLanes)
+          updateTicketsOrder([
+            ...destinationLane.tickets,
+            ...originLane.tickets,
+          ])
+          router.refresh()
+        }
+        break
+      }
+    }
+  }
+
   return (
-    <DragDropContext onDragEnd={() => {}}>
+    <DragDropContext onDragEnd={onDragEnd}>
       <div className="bg-white/60 dark:bg-background/60 rounded-xl p-4 use-automation-zoom-in">
         <div className="flex items-center justify-between">
           <h1 className="text-2xl">{pipelineDetails?.name}</h1>
@@ -98,13 +177,13 @@ const PipelineView = ({
               ref={provided.innerRef}
             >
               <div className="flex mt-4">
-              {allLanes.map((lane, index) => {
+                {allLanes.map((lane, index) => {
                   // Ensure we have a valid array of tickets to pass
-                  const laneTickets: TicketsAndTags[] = Array.isArray(lane.tickets) 
-                    ? lane.tickets.filter((ticket): ticket is TicketsAndTags => 
-                        (ticket as TicketsAndTags)._id !== undefined)
+                  const laneTickets: TicketsAndTags[] = Array.isArray(lane.tickets)
+                    ? lane.tickets.filter((ticket): ticket is TicketsAndTags =>
+                      (ticket as TicketsAndTags)._id !== undefined)
                     : [];
-                    
+
                   return (
                     <PipelineLane
                       allTickets={allTickets}

@@ -8,14 +8,20 @@ import { User } from "./user.types";
 // Interface for the Ticket document
 export interface Ticket extends Document {
   name: string;
-  laneId: mongoose.Types.ObjectId;
+  laneId: mongoose.Types.ObjectId | string;
   order: number;
   value: number | string;
   description: string | null;
   customerId: Contact | null;
-  assignedUserId: mongoose.Types.ObjectId | null;
+  assignedUserId: mongoose.Types.ObjectId | User | null;
   tags: Tag[];
 }
+
+export type TicketOrderInput = {
+   _id: string | Types.ObjectId;
+  order: number;
+  laneId: string | Types.ObjectId;
+};
 
 export interface TicketCreateInput {
   _id?: Types.ObjectId;

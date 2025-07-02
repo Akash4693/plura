@@ -185,7 +185,7 @@ const PipelineTicket = ({
                     </span>
                     <div className="flex items-center flex-wrap gap-2">
                       {ticket.tags.map((tag) => {
-                        console.log("ticket tags: ", ticket.tags);
+                       
                         return (
                         <TagComponent
                           key={tag._id?.toString()}

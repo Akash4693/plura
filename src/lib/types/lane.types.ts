@@ -9,14 +9,14 @@ import { Contact } from "./contact.types";
 export interface Lane extends Document {
   name: string;
   pipelineId: mongoose.Types.ObjectId; 
-  tickets: mongoose.Types.ObjectId[] | TicketsAndTags[]; 
+  tickets?: mongoose.Types.ObjectId[] | TicketsAndTags[]; 
   order: number;
 }
 
 
 export interface LaneDetail extends Omit<Lane, "tickets"> {
   name: string
-  tickets?:  Types.ObjectId[] | TicketsAndTags[]
+  tickets: TicketsAndTags[]
 }
 
 
