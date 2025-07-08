@@ -498,7 +498,7 @@ const AgencyDetails = ({ data }: Props) => {
       
       toast({
         variant: 'destructive',
-        title: 'Oops!',
+        title: 'Error!',
         description: 'An unexpected error occurred. Please try again.',
       });
     }
