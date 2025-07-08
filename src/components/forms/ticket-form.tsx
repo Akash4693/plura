@@ -70,7 +70,9 @@ const TicketForm = ({ laneId, subaccountId, getNewTicket }: Props) => {
   const { toast } = useToast();
   const [tags, setTags] = useState<Tag[]>([]);
   const [contact, setContact] = useState("");
+  const [isPopoverOpen, setIsPopoverOpen] = useState(false);
   const [search, setSearch] = useState("");
+  const [isSearching, setIsSearching] = useState(false);
   const [contactList, setContactList] = useState<Contact[]>([]);
   const [allTeamMembers, setAllTeamMembers] = useState<User[]>([]);
   const saveTimerRef = useRef<ReturnType<typeof setTimeout>>();
@@ -89,32 +91,31 @@ const TicketForm = ({ laneId, subaccountId, getNewTicket }: Props) => {
   });
   const isLoading = form.formState.isLoading;
 
-  
   useEffect(() => {
-  let isMounted = true; // Prevent state updates if component unmounts
-  
-  if (subaccountId) {
-    const fetchData = async () => {
-      try {
-        const response = await getSubAccountTeamMembers(subaccountId);
-        if (isMounted && response) {
-          setAllTeamMembers(response);
-        }
-      } catch (error) {
-        console.error("Error fetching team members:", error);
-        if (isMounted) {
-          setAllTeamMembers([]);
-        }
-      }
-    };
+    let isMounted = true;
     
-    fetchData();
-  }
-  
-  return () => {
-    isMounted = false; // Cleanup
-  };
-}, [subaccountId]); 
+    if (subaccountId) {
+      const fetchData = async () => {
+        try {
+          const response = await getSubAccountTeamMembers(subaccountId);
+          if (isMounted && response) {
+            setAllTeamMembers(response);
+          }
+        } catch (error) {
+          console.error("Error fetching team members:", error);
+          if (isMounted) {
+            setAllTeamMembers([]);
+          }
+        }
+      };
+      
+      fetchData();
+    }
+    
+    return () => {
+      isMounted = false;
+    };
+  }, [subaccountId]); 
 
   useEffect(() => {
     if (defaultData.ticket) {
@@ -141,22 +142,11 @@ const TicketForm = ({ laneId, subaccountId, getNewTicket }: Props) => {
     }
   }, [defaultData]);
 
-  /*    values: String(
-    (typeof defaultData.ticket.value === "object" &&
-     defaultData.ticket.value !== null &&
-     "$numberDecimal" in defaultData.ticket.value)
-      ? (defaultData.ticket.value as any).$numberDecimal
-      : defaultData.ticket.value ?? 0
-  ), */
-
   const onSubmit = async (values: z.infer<typeof TicketFormSchema>) => {
     if (!laneId) return;
     try {
-     //const numericValue = parseFloat(values.values);
-      console.log("default data of ticket", defaultData.ticket)
-      
-
-    console.log("📝 Ticket Form Values:", values);
+      console.log("default data of ticket", defaultData.ticket);
+      console.log("📝 Ticket Form Values:", values);
 
       const response = await upsertTicket(
         {
@@ -168,10 +158,8 @@ const TicketForm = ({ laneId, subaccountId, getNewTicket }: Props) => {
         },
         tags
       );
-      console.log("selected tags: ", tags)
-      console.log("Upsert Ticket response: ", response)
-      
-
+      console.log("selected tags: ", tags);
+      console.log("Upsert Ticket response: ", response);
 
       await saveActivityLogsNotification({
         agencyId: undefined,
@@ -195,6 +183,50 @@ const TicketForm = ({ laneId, subaccountId, getNewTicket }: Props) => {
     }
     setClose();
   };
+
+  const handleSearch = async (searchTerm: string) => {
+    setIsSearching(true);
+    try {
+      const response = await searchContacts(searchTerm);
+      setContactList(response);
+    } catch (error) {
+      console.error("Error searching contacts:", error);
+      setContactList([]);
+    } finally {
+      setIsSearching(false);
+    }
+  };
+
+  // Load initial contacts when component mounts
+  useEffect(() => {
+    const loadInitialContacts = async () => {
+      try {
+        const response = await searchContacts("");
+        setContactList(response);
+      } catch (error) {
+        console.error("Error loading initial contacts:", error);
+      }
+    };
+    
+    loadInitialContacts();
+  }, []);
+
+  // Debounced search effect
+  useEffect(() => {
+    if (saveTimerRef.current) {
+      clearTimeout(saveTimerRef.current);
+    }
+
+    saveTimerRef.current = setTimeout(() => {
+      handleSearch(search);
+    }, 500); // Reduced debounce time for better UX
+
+    return () => {
+      if (saveTimerRef.current) {
+        clearTimeout(saveTimerRef.current);
+      }
+    };
+  }, [search]);
 
   return (
     <Card className="w-full">
@@ -304,7 +336,7 @@ const TicketForm = ({ laneId, subaccountId, getNewTicket }: Props) => {
               </SelectContent>
             </Select>
             <FormLabel>Customer</FormLabel>
-            <Popover>
+            <Popover open={isPopoverOpen} onOpenChange={setIsPopoverOpen}>
               <PopoverTrigger asChild className="w-full">
                 <Button
                   variant="outline"
@@ -319,48 +351,50 @@ const TicketForm = ({ laneId, subaccountId, getNewTicket }: Props) => {
                   <ChevronsUpDownIcon className="ml-2 h-4 w-4 shrink-0 opacity-50" />
                 </Button>
               </PopoverTrigger>
-              <PopoverContent className="w-[400px] p-0">
-                <Command>
+              <PopoverContent inPortal={false} className="w-[400px] p-0">
+                <Command shouldFilter={false}>
                   <CommandInput
                     placeholder="Search customer..."
                     className="h-9"
                     value={search}
-                    onChangeCapture={async (value) => {
-                      //@ts-ignore
-                      setSearch(value.target.value);
-                      if (saveTimerRef.current)
-                        clearTimeout(saveTimerRef.current);
-                      saveTimerRef.current = setTimeout(async () => {
-                        const response = await searchContacts(
-                          //@ts-ignore
-                          value.target.value
-                        );
-                        setContactList(response);
-                        setSearch("");
-                      }, 1000);
-                    }}
+                    onValueChange={setSearch}
                   />
-                  <CommandEmpty>No customer found.</CommandEmpty>
+                  <CommandEmpty>
+                    {isSearching ? "Searching..." : "No customer found."}
+                  </CommandEmpty>
+
                   <CommandGroup>
                     {contactList.map((contactItem) => (
                       <CommandItem
                         key={contactItem._id}
-                        value={contactItem._id}
-                        onSelect={(currentValue) => {
-                          setContact(
-                            currentValue === contact ? "" : currentValue
-                          );
+                        value={contactItem.name}
+                        onSelect={() => {
+                          setContact(contactItem._id);
+                          setIsPopoverOpen(false);
+                          setSearch("");
                         }}
+                        className={cn(
+                          "cursor-pointer",
+                          contact === contactItem._id && "bg-blue-100 dark:bg-blue-900/50"
+                        )}
                       >
-                        {contactItem.name}
-                        <CheckIcon
-                          className={cn(
-                            "ml-auto h-4 w-4",
-                            contact === contactItem._id
-                              ? "opacity-100"
-                              : "opacity-0"
-                          )}
-                        />
+                        <div className="flex items-center justify-between w-full">
+                          <span className={cn(
+                            search && contactItem.name.toLowerCase().includes(search.toLowerCase()) 
+                              ? "font-medium text-blue-600 dark:text-blue-400" 
+                              : ""
+                          )}>
+                            {contactItem.name}
+                          </span>
+                          <CheckIcon
+                            className={cn(
+                              "ml-auto h-4 w-4",
+                              contact === contactItem._id
+                                ? "opacity-100 text-blue-600 dark:text-blue-400"
+                                : "opacity-0"
+                            )}
+                          />
+                        </div>
                       </CommandItem>
                     ))}
                   </CommandGroup>
