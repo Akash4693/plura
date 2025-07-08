@@ -36,18 +36,19 @@ const InfoBar = ({
     const [allNotifications, setAllNotifications] = useState<NotificationWithUser[]>(notifications)
     const [showAll, setShowAll] = useState(true)  
 
-        console.log("notifications", notifications)
+        console.log("Info bar notifications", notifications)
 
     const handleClick = () => {
         if (!showAll) {
-            setAllNotifications(notifications)
-        } else {
-            if (notifications.length !== 0) {
-                setAllNotifications(
-                    notifications.filter((item) => item.subAccountId?.toString() === subAccountId) ?? []
-                );
-            }
-        }
+             setAllNotifications(
+      notifications.filter(
+        (item) => item.subAccountId?.toString() === subAccountId
+      ) ?? []
+    );
+  } else {
+    // 🔍 Toggle was ON → Now turning OFF → Show all
+    setAllNotifications(notifications);
+  }
         setShowAll((prev) => !prev)
     }
 
