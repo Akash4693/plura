@@ -106,28 +106,30 @@ const TagCreator = ({ getSelectedTags, subAccountId, defaultTags }: Props) => {
       }
 
       const createdTag = await response.json();
-
+      console.log("Created tag ",createdTag)
       setTags((prev) => [...prev, createdTag]);
       setSelectedTags((prev) => [...prev, createdTag]);
 
       setValue("");
       setSelectedColor("");
       //const response = await upsertTag(subAccountId, tagData)
+     
+     
+      
       toast({
         title: "Tag created successfully",
         variant: "success",
       });
 
-
-
-
-      await saveActivityLogsNotification({
+       await saveActivityLogsNotification({
         agencyId: undefined,
         description: `Updated tag |  ${createdTag.name}`,
         subAccountId: subAccountId,
       });
+
+     
     } catch (error) {
-      console.log("Failed to create tag: ", error)
+      console.error("Failed to create tag: ", error)
       toast({
         title: "Failed to create tag",
         description: "Please try again later.",
